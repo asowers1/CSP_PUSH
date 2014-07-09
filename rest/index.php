@@ -106,6 +106,14 @@ class RestAPI {
     sendResponse(400, 'Invalid request');
     return false;
     }
+    
+    /*
+    *	getBeacon
+    *
+    *	@PUSH_ID REST API key, @uuid the provided uuid for feting beacon credentials
+    *
+    *
+    */
     function getBeacon() {
 	if (isset($_GET["uuid"])) {
 		$uuidIn = $_GET["uuid"];
@@ -133,8 +141,15 @@ class RestAPI {
     return false;
     }
     
+    /*
+    *	setBeacon
+    *
+    *	@PUSH_ID key for REST, @beacon_id id of beaocn for query, @identifier the text name for the identifier, @uuid beacon uuid, @major beacon major, @minor beacon minor
+    *
+    *	@return affected rows from update or error associated with the provided beacon
+    */
     function setBeacon() {
-	    if(isset($_POST["beacon_id"])&&isset($_POST["uuid"])&&isset($_POST["major"])&&isset($_POST["minor"])&&isset($_POST["PUSH_ID"])){
+	    if(isset($_POST["beacon_id"])&&isset($_POST["identifier"])&&isset($_POST["uuid"])&&isset($_POST["major"])&&isset($_POST["minor"])&&isset($_POST["PUSH_ID"])){
 			if(!$this->checkPushID($_POST["PUSH_ID"])){
 				sendResponse(400, 'Invalid code');
 				return false;
@@ -147,15 +162,24 @@ class RestAPI {
 		    
 		    $stmt = $this->db->prepare('UPDATE beacon SET uuid=?, major=?, minor=? WHERE beacon_id = ?');
 		    $stmt->bind_param('siis',$uuidIn,$majorIn,$minorIn,$beaconIdIn);
-		    $stmt->execute();  
+		    $stmt->execute(); 
+		    // send affected rows, zero if failure 
 			sendResponse(200, $stmt->affected_rows);
 			$stmt->close();	
 			return true;
 	    }
-	    sendResponse(400, 'invalid param');
+	    // send zero; failure
+	    sendResponse(400, 0);
 	    return false;
     }
     
+    /*
+    *	getListingDataFromBeacon
+    *
+    *	@PUSH_ID key for REST, @uuid beacon uuid, @major beacon major, @minor beacon minor
+    *
+    *	@return JSON object of listing data associated with the provided beacon
+    */
     function getListingDataFromBeacon(){
 	    if(isset($_GET["uuid"])&&isset($_GET["major"])&&isset($_GET["minor"])&&isset($_GET["PUSH_ID"]))
 	    {
@@ -169,7 +193,13 @@ class RestAPI {
 	    sendResponse(400, 'Invalid param');
 		return false;
     }
-    
+    /*
+    *	getAllBeacons
+    *
+    *	@PUSH_ID key for REST
+    *
+    *	@return JSON object of all beacon rows from push_interactive DB
+    */
     function getAllBeacons(){
     	$json;
 	    if(isset($_GET["PUSH_ID"])){
@@ -177,7 +207,6 @@ class RestAPI {
 				sendResponse(400,json_encode($output));
 				return false;   
 		    }
-		    
 		    $stmt = $this->db->prepare('SELECT * FROM beacon');
 		    $stmt->execute();
 			$stmt->bind_result($beacon_id,$identifier,$uuid,$major,$minor);
@@ -188,8 +217,7 @@ class RestAPI {
 		    $stmt->close();	
 			// headers for not caching the results
 			header('Cache-Control: no-cache, must-revalidate');
-			header('Expires: Mon, 26 Jul 2020 05:00:00 GMT');
-	
+			header('Expires: Mon, 26 Jul 2001 05:00:00 GMT');
 			// headers to tell that result is JSON
 			header('Content-type: application/json');
 			sendResponse(200, json_encode($output));
@@ -198,13 +226,13 @@ class RestAPI {
 	    sendResponse(400, json_encode($output));
 	    return false;
     }
+    
+    // end of RestAPI class
 }
  
 // This is the first thing that gets called when this page is loaded
 // Creates a new instance of the RedeemAPI class and calls the redeem method
 $api = new RestAPI;
-//$api->redeem();
-$function = $_GET["call"];
+$function = $_REQUEST["call"];
 $api->$function();
-//$api->getListingDataFromBeacon();
 ?>
