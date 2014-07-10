@@ -1,8 +1,7 @@
 <?php include ('header.php'); ?>
 <?php
 
-	//Gets the form submitted data 
-	
+	//Gets the form submitted data
 	/*
 	function setupIDDirectory($userid) /*** DEPRICATED ***
 	{
@@ -26,72 +25,69 @@
 			$oldmask = umask(0);
 			mkdir($file_location, 0777);
 			umask($oldmask);
-			
 			//$fileStr = "../../usrID/data/".$file;
 			//$filePointer = fopen($fileStr,'w+');
 			//fwrite($filePointer,"");
 			//fclose($filePointer);
-			
-	
 			mysqli_close ($con1);
 		}
 	}
 	*/
 	$register = $_GET['register'];
-	
+
 	if($register == 1 && !empty($_POST)) // Checks if the form is submitted or not
 	{
-	
+
 	//retrieve all submitted data from the form
-	
+
 	$username = $_POST['username'];
 	$username = strip_tags($username); //strip tags are used to take plain text only, in case the register-er inserts dangours scripts.
 	$username = str_replace(' ', '', $username); // to remove blank spaces
-	
+
 	$password = $_POST['password'];
 	$password = strip_tags($password);
 	$password = md5($password); // md5 is used to encrypt your password to make it more secure.
-	
+
 	$email = $_POST['email'];
 	$email = strip_tags($email);
-	
+
 	$firstName = $_POST['firstName'];
 	$firstName = strip_tags($firstName);
-	
+
 	$lastName = $_POST['lastName'];
 	$lastName = strip_tags($lastName);
-	
+
 	$address1 = $_POST['address1'];
 	$address1 = strip_tags($address1);
-	
+
 	$address2 = $_POST['address2'];
 	$address2 = strip_tags($address2);
-	
+
 	$city = $_POST['city'];
 	$city = strip_tags($city);
-	
+
 	$state = $_POST['state'];
 	$state = strip_tags($state);
-	
+
 	$zipcode = $_POST['zipcode'];
 	$zipcode = strip_tags($zipcode);
-	
+
 	$appKey = $_POST['appKey'];
 	$appKey = strip_tags($appKey);
 	$appKey = md5($appKey);
-	
+
 	$sql1="SELECT id FROM client WHERE username='$username'"; // checking username already exists
 	$qry1=mysql_query($sql1);
 	$sql2="SELECT id FROM client WHERE email='$email'"; // checking email already exists
 	$qry2=mysql_query($sql2);
-	
+
 	$num_rows = mysql_num_rows($qry1);
 	$num_rows = num_rows+ mysql_num_rows($qry2);
-	
-	$sql3="SELECT * FROM push_app WHERE push_app_key='$appKey' and id_push_app=1";
+
+	$sql3="SELECT * FROM application WHERE push_app_key='$appKey' and application_id=1";
 	$qry3=mysql_query($sql3);
 	$num_rows2 = mysql_num_rows($qry3);
-	
+
 	//alert if it already exists
 	if($num_rows > 0)
 	{
