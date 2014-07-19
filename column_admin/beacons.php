@@ -1,7 +1,9 @@
 
 <?php
 include ('header.php');
-$beacons = getAllBeaconsFromDB();
+
+// gets all beacons for viewing later in the table; excludes the null beacon marker (beacon_id 0)
+$beacons = getAllBeaconsExceptNull();
 	$register = $_GET['register'];
 	
 	if($register == 1 && !empty($_POST)) // Checks if the form is submitted or not
@@ -241,6 +243,11 @@ $beacons = getAllBeaconsFromDB();
 		     document.myForm.minor.focus() ;
 		     return false;
 		   } 
+		   	if(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(document.myForm.uuid.value)!=true){
+			   alert("Please prvoide a valid UUID");
+			   document.myForm.uuid.focus();
+			   return false;
+		   }
 		
 		   return( true );
 		}
@@ -254,6 +261,8 @@ $beacons = getAllBeaconsFromDB();
     <script src="js/morris/chart-data-morris.js"></script>
     <script src="js/tablesorter/jquery.tablesorter.js"></script>
     <script src="js/tablesorter/tables.js"></script>
+    
+
 
   </body>
 </html>

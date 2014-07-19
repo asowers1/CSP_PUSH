@@ -9,15 +9,7 @@ include ('header.php');
 <!-- get data vars per username -->
 <?php
 $simple = 150;
-# include parseCSV class.
-require_once('parsecsv.lib.php');
-# create new parseCSV object.
-$csv = new parseCSV();
 
-//$userInfo->offset=2;
-//$csv->auto('../../../usrID/data/'.$IDDirectory.'/info.csv');
-
-// to do: put info for each in an array for later parsing. Put into header function.
 $appId;
 $appName;
 $numberOfApps;
@@ -25,29 +17,6 @@ $numberOfUsers;
 $currentCampaign;
 
 $appArray = array();
-
-/*
-$i=0;
-$j=0;
-foreach ($csv->data as $key => $row):
-	foreach ($row as $value):
-		if($i==0)$appId = $value;
-		if($i==1)$appName = $value;
-		if($i==2){
-			$numberOfUsers = $value;
-			$innerArray = array($appId,$appName,$numberOfUsers);
-		}
-		if ($_SERVER["REQUEST_METHOD"] == "POST" && $j==0) {
-			$currentCampaign = $_POST["selection"];
-		}else if($j==0)$currentCampaign = $appName;
-		$i=$i+1;
-	endforeach;
-	$i=0;
-	$appArray[$j]=$innerArray;
-	$j=$j+1;
-endforeach;
-$numberOfApps=$j;
-*/
 
 function test_input($data)
 {
@@ -245,7 +214,9 @@ function test_input($data)
 	<script src="js/flot/jquery.flot.resize.js"></script>
 	<script src="js/flot/jquery.flot.pie.js"></script>
 	<script src="js/flot/chart-data-flot.js"></script>
-
+	
+	<!--PapaParse-->
+	<script src="https://github.com/mholt/PapaParse/blob/master/papaparse.min.js"></script>
 
   </body>
 </html>
