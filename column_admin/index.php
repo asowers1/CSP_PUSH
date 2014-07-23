@@ -70,8 +70,6 @@ function test_input($data)
             <li class="active"><a href="index.php"><i class="fa fa-dashboard"></i> Dashboard</a></li>
             <li><a href="beacons.php"><i class="fa fa-bar-chart-o"></i> Beacons</a></li>
             <li><a href="campagins.php"><i class="fa fa-edit"></i> Neighborhood Campaigns</a></li>
-            <li><a href="appManeger.php"><i class="fa fa-wrench"></i> App Content</a></li>
-
           </ul>
 
           <ul class="nav navbar-nav navbar-right navbar-user">
@@ -101,6 +99,7 @@ function test_input($data)
             </div>
           </div>
         </div><!-- /.row -->
+
         <div class="row">
         	<div class="col-lg-12">
         	<form action="index.php" method="post">
@@ -137,7 +136,7 @@ function test_input($data)
           <div class="col-lg-12">
             <div class="panel panel-primary">
               <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Total Beacon Exposure</h3>
+                <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Click through rates</h3>
               </div>
               <div class="panel-body">
                 <div id="morris-chart-area"></div>

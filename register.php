@@ -76,15 +76,15 @@
 	$appKey = strip_tags($appKey);
 	$appKey = md5($appKey);
 
-	$sql1="SELECT id FROM client WHERE username='$username'"; // checking username already exists
+	$sql1="SELECT client_id FROM client WHERE client_name='$username'"; // checking username already exists
 	$qry1=mysql_query($sql1);
-	$sql2="SELECT id FROM client WHERE email='$email'"; // checking email already exists
+	$sql2="SELECT client_id FROM client WHERE email='$email'"; // checking email already exists
 	$qry2=mysql_query($sql2);
 
 	$num_rows = mysql_num_rows($qry1);
 	$num_rows = num_rows+ mysql_num_rows($qry2);
 
-	$sql3="SELECT * FROM application WHERE push_app_key='$appKey' and application_id=1";
+	$sql3="SELECT * FROM application WHERE push_app_key='$appKey'";
 	$qry3=mysql_query($sql3);
 	$num_rows2 = mysql_num_rows($qry3);
 
@@ -92,6 +92,7 @@
 	if($num_rows > 0)
 	{
 		echo '
+		<br>
 		<div class="alert">
 		  <button type="button" class="close" data-dismiss="alert">&times;</button>
 		  <strong>username or email already exists in our database!</strong> please use another or contact andrew@experiencepush.com
@@ -100,6 +101,7 @@
 	}
 	else if($num_rows2 != 1){
 		echo '
+		<br>
 		<div class="alert">
 		  <button type="button" class="close" data-dismiss="alert">&times;</button>
 		  <strong>pushKey does not match your record in our database!</strong> please use the correct key or contact andrew@experiencepush.com for assistance
@@ -123,6 +125,7 @@
 		//setupIDDirectory($idInt);
 	
 		echo '
+			<br>
 			<div class="alert alert-success">
 			Registration Successful! please login to your account
 			</div>
@@ -142,7 +145,7 @@
 ?>
 
 <br/>
-   <div style="float:right; "> <a class="btn" href="index.php" > <i class="icon-home icon-black"></i> Home </a>  </div>
+   <div style="float:right; "> <a class="btn" href="index.php" > <i class="icon-home icon-black"></i> Back </a>  </div>
    <br/>
 <?php
 //hiding form once the registration is successful
@@ -150,22 +153,22 @@
  ?>
 <form action="register.php?register=1" method="post" name="myForm" onsubmit="return(validate());">
 	<fieldset>
-		<legend>Sign Up Form</legend>
+		<legend>Registration Form</legend>
 		<label>Username *</label>
 		<br/>
-		<input name="username" type="text" placeholder="your login username">
+		<input name="username" type="text" placeholder="">
 		<br/>
 		<label>Password *</label>
 		<br/>
-		<input name="password" type="password" placeholder="Login password">
+		<input name="password" type="password" placeholder="">
 		<br/>
-		<input name="passwordTwo" type="password" placeholder="duplicate check">
+		<input name="passwordTwo" type="password" placeholder="">
 		<br/>
 		<label>Email *</label>
 		<br/>
-		<input name="email" type="text" placeholder="Incase we need to reset your password">
+		<input name="email" type="text" placeholder="">
 		<br/>
-		<input name="emailTwo" type="text" placeholder="duplicate check">
+		<input name="emailTwo" type="text" placeholder="">
 		<br/>
 		<label>First Name *</label>
 		<br/>
@@ -185,15 +188,15 @@
 		<br/>
 		<label>City *</label>
 		<br/>
-		<input name="city" type="text" placeholder="your current city">
+		<input name="city" type="text" placeholder="">
 		<br/>
 		<label>State *</label>
 		<br/>
-		<input name="state" type="text" placeholder="your current state">
+		<input name="state" type="text" placeholder="">
 		<br/>
 		<label>Zip code *</label>
 		<br/>
-		<input name="zipcode" type="text" placeholder="your postal code">
+		<input name="zipcode" type="text" placeholder="">
 		</br>
 		</br>
 		<label>Push Application Key *</label>

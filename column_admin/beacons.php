@@ -88,7 +88,6 @@ $beacons = getAllBeaconsExceptNull();
             <li><a href="index.php"><i class="fa fa-dashboard"></i> Dashboard</a></li>
             <li class="active"><a href="beacons.php"><i class="fa fa-bar-chart-o"></i> Beacons</a></li>
 			<li><a href="campagins.php"><i class="fa fa-edit"></i> Neighborhood Campaigns</a></li>
-            <li><a href="appManeger.php"><i class="fa fa-wrench"></i> App Content</a></li>
 
           </ul>
 
@@ -152,17 +151,14 @@ $beacons = getAllBeaconsExceptNull();
           </div>
         </div><!-- /.row -->
 		<!--<pre><?php print_r(getAllBeaconsFromDB()); ?></pre>-->
-        <div class="col-lg-8">
+        <div class="col-lg-6">
             <h1>Deployed beacons</h1>
             <div class="table-responsive">
               <table class="table table-bordered table-hover table-striped tablesorter">
                 <thead>
                   <tr>
-                    <th>CSP Beacon ID <i class="fa fa-sort"></i></th>
-                    <th>CSP Identifier <i class="fa fa-sort"></i></th>
-                    <th>Universally unique identifier (UUID) <i class="fa fa-sort"></i></th>
-                    <th>Major <i class="fa fa-sort"></i></th>
-                    <th>Minor <i class="fa fa-sort"></i></th>
+                    <th>Beacon ID <i class="fa fa-sort"></i></th>
+                    <th>Identifier <i class="fa fa-sort"></i></th>
                     <!--<th>Delete <i class="fa fa-short"></i></th>-->
                   </tr>
                 </thead>
@@ -174,11 +170,8 @@ $beacons = getAllBeaconsExceptNull();
                 	$index = $beacons[$i];
 	                echo '
 	                  <tr>
-	                    <td>'.$index["beacon_id"].'</td>
 	                    <td>'.$index["identifier"].'</td>
-	                    <td>'.$index["uuid"].'</td>
-	                    <td>'.$index["major"].'</td>
-	                    <td>'.$index["minor"].'</td>
+	                    <td>'.$index["beacon_id"].'</td>
 	                  </tr> ';
 	            }
                 ?>
@@ -186,7 +179,7 @@ $beacons = getAllBeaconsExceptNull();
               </table>
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-6">
             <h1>Add new Beacon</h1>
             <form action="beacons.php?register=1" method="POST" name="myForm" onsubmit="return(validate());">
               <div class="form-group input-group">
@@ -194,16 +187,8 @@ $beacons = getAllBeaconsExceptNull();
                 <input type="text" name="identifier" class="form-control" placeholder="e.g. South Danby front door">
               </div>
               <div class="form-group input-group">
-                <span class="input-group-addon">UUID</span>
-                <input type="text" name="uuid" class="form-control" placeholder="e.g. EE1A782C-9CD0-470C-88C4-BD52704B7A9A">
-              </div>
-              <div class="form-group input-group">
-                <span class="input-group-addon">Major</span>
-                <input type="text" name="major" class="form-control" placeholder="e.g. 1">
-              </div>
-              <div class="form-group input-group">
-                <span class="input-group-addon">Minor</span>
-                <input type="text" name="minor" class="form-control" placeholder="e.g. 1">
+                <span class="input-group-addon">Beacon ID</span>
+                <input type="text" name="beaconId" class="form-control" placeholder="e.g. 7A9A">
               </div>
 			<button type="submit" class="btn btn-default">Submit Beacon</button>
             </form>

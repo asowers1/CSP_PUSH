@@ -84,7 +84,6 @@ $listings  = getAllRealityFromDB();
             <li><a href="index.php"><i class="fa fa-dashboard"></i> Dashboard</a></li>
             <li><a href="beacons.php"><i class="fa fa-bar-chart-o"></i> Beacons</a></li>
 			<li class="active"><a href="campagins.php"><i class="fa fa-edit"></i> Neighborhood Campaigns</a></li>
-            <li><a href="appManeger.php"><i class="fa fa-wrench"></i> App Content</a></li>
 
           </ul>
 
