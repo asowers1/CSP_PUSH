@@ -227,6 +227,20 @@ class RestAPI {
 	    return false;
     }
     
+    function getAllListings(){
+    	$json;
+	    if(isset($_GET["PUSH_ID"])){
+		    if(!$this->checkPushID($_GET["PUSH_ID"])){
+				sendResponse(400,json_encode($json));
+				return false;   
+		    }
+			include_once("listing_crud.php");
+			sendResponse(200, $json_data);
+			return true;
+	    }
+	    sendResponse(400, "test");
+	    return false;
+    }
     // end of RestAPI class
 }
  
