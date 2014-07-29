@@ -1,38 +1,6 @@
 <?php include ('header.php'); ?>
 <?php
 
-	//Gets the form submitted data
-	/*
-	function setupIDDirectory($userid) /*** DEPRICATED ***
-	{
-		$con1=mysqli_connect("127.0.0.1","root","titan","pool");
-		// Check connection
-		if (mysqli_connect_errno())
-		{
-			// -1 : failure state
-			echo "-1" . mysqli_connect_error();
-		}
-		else
-		{
-			// a unique ID is associated with a incrementing primary key ala MySQL
-			$data = uniqid ();
-			$file = $data;	// it be a file, yo
-			$file_location = "../../usrID/data/"."$file";
-			// prepare yourself
-			$stmt1 = mysqli_prepare($con1,"INSERT INTO IDDirectory(id, directory) VALUES (?,?)");
-			mysqli_stmt_bind_param($stmt1,is,$userid,$data);
-			mysqli_stmt_execute($stmt1);
-			$oldmask = umask(0);
-			mkdir($file_location, 0777);
-			umask($oldmask);
-			//$fileStr = "../../usrID/data/".$file;
-			//$filePointer = fopen($fileStr,'w+');
-			//fwrite($filePointer,"");
-			//fclose($filePointer);
-			mysqli_close ($con1);
-		}
-	}
-	*/
 	$register = $_GET['register'];
 
 	if($register == 1 && !empty($_POST)) // Checks if the form is submitted or not
@@ -107,23 +75,21 @@
 		  <strong>pushKey does not match your record in our database!</strong> please use the correct key or contact andrew@experiencepush.com for assistance
 		</div>
 		';
-		
+
 	}
 	else
 	{
 		// if username doesn't exist insert new records to push_interactive database for CSP management
 		$success = mysql_query("INSERT INTO client(client_id, client_name, password, email, first_name, last_name, address1, address2, city, state, zipcode) VALUES (DEFAULT,'".$username."', '".$password."', '".$email."', '".$firstName."', '".$lastName."', '".$address1."', '".$address2."', '".$city."', '".$state."', '".$zipcode."')");
-	
 	 	//messages if the new record is inserted or not
 	 	if($success) {
-	
-	
+
 		// we need the id for linking to users data directory /*** DEPRICATED ***
-		//$getNewId=mysql_query("SELECT id FROM client WHERE username='$username'"); 
+		//$getNewId=mysql_query("SELECT id FROM client WHERE username='$username'");
 		//$result1=mysql_result($getNewId, 0);
 		//$idInt = intval($result1);
 		//setupIDDirectory($idInt);
-	
+
 		echo '
 			<br>
 			<div class="alert alert-success">
@@ -131,7 +97,7 @@
 			</div>
 			';
 		}
-		
+
 		else {
 			echo '
 				<div class="alert">
@@ -203,10 +169,10 @@
 		</br>
 		<input name="pushKey" type="text" placeholder="Your Push App key">
 		</br>
-		
+
 
   <!-- Ready made validation script, if you want any mandatory fields  (optional) -->
- 
+
 <script type="text/javascript">
 
 function validate()
@@ -241,7 +207,7 @@ function validate()
      alert( "Please provide your full name!" );
      document.myForm.full_name.focus() ;
      return false;
-   } 
+   }
 
    if( document.myForm.passwordTwo.value != document.myForm.password.value)
    {
@@ -249,43 +215,24 @@ function validate()
      document.myForm.password.focus();
      return false;
    }
-   
    if (document.myForm.emailTwo.value != document.myForm.email.value)
    {
 	   alert( "Please provide matching email accounts!");
 	   document.myForm.email.focus();
 	   return false;
    }
-   
    if (document.myForm.address1.vaue == "")
    {
 	   alert( "Please provide at least 1 address")
 	   document.myForm.address1.focus();
 	   return false;
    }
-
    return( true );
 }
 </script>
-
 	<br/>
     <button type="submit" class="btn">Signup</button>
   </fieldset>
 </form>
 <?php } ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<?php include ('footer.php'); ?> 
+<?php include ('footer.php'); ?>

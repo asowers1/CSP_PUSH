@@ -1,4 +1,4 @@
-<?php
+<?hh
 
 include_once "rest.php";
 
@@ -46,67 +46,6 @@ class RestAPI {
 		return true;
 	}
  
- 
-	// Print all promo codes in database
-    function redeem() {
-    // Check for required parameters
-    
-    
-    if (isset($_POST["push_app_id"]) && isset($_POST["code"]) && isset($_POST["device_id"])&&isset($_POST["PUSH_ID"])) {
- 
-		
-		
-        // Put parameters into local variables
-        $rw_app_id = $_POST["push_app_id"];
-        $code = $_POST["code"];
-        $device_id = $_POST["device_id"];
-		
- 
-        // Look up code in database
-        $user_id = 0;
-        $stmt = $this->db->prepare('SELECT id, unlock_code, uses_remaining FROM push_promo_code WHERE id=? AND code=?');
-        $stmt->bind_param("is", $push_apid, $code);
-        $stmt->execute();
-        $stmt->bind_result($id, $unlock_code, $uses_remaining);
-        while ($stmt->fetch()) {
-            break;
-        }
-        $stmt->close();
-		
-        // Bail if code doesn't exist
-        if ($id <= 0) {
-            sendResponse(400, 'Invalid code');
-            return false;
-        }
- 
-        // Bail if code already used		
-        if ($uses_remaining <= 0) {
-            sendResponse(403, 'Code already used');
-            return false;
-        }	
- 
-        // Check to see if this device already redeemed	
-        $stmt = $this->db->prepare('SELECT id FROM push_promo_code_redeemed WHERE device_id=? AND rw_promo_code_id=?');
-        $stmt->bind_param("si", $device_id, $id);
-        $stmt->execute();
-        $stmt->bind_result($redeemed_id);
-        while ($stmt->fetch()) {
-            break;
-        }
-        $stmt->close();
- 
-        // Bail if code already redeemed
-        if ($redeemed_id > 0) {
-            sendResponse(403, 'Code already used');
-            return false;
-        }
- 
-		
-    }
-    sendResponse(400, 'Invalid request');
-    return false;
-    }
-    
     /*
     *	getBeacon
     *
@@ -174,9 +113,10 @@ class RestAPI {
     }
     
     /*
-    *	getListingDataFromBeacon
+    *	getListingDataFromBeacon gets the listings data per beacon.
     *
-    *	@PUSH_ID key for REST, @uuid beacon uuid, @major beacon major, @minor beacon minor
+    *	@super_global_param PUSH_ID:key for REST @super_global_param uuid:beacon uuid @super_global_param major:beacon major
+    *	@super_global_param minor:beacon minor
     *
     *	@return JSON object of listing data associated with the provided beacon
     */
@@ -193,10 +133,11 @@ class RestAPI {
 	    sendResponse(400, 'Invalid param');
 		return false;
     }
+    
     /*
     *	getAllBeacons
     *
-    *	@PUSH_ID key for REST
+    *	@super_global_param PUSH_ID:key for REST
     *
     *	@return JSON object of all beacon rows from push_interactive DB
     */
@@ -223,7 +164,7 @@ class RestAPI {
 			sendResponse(200, json_encode($output));
 			return true;
 	    }
-	    sendResponse(400, json_encode($output));
+	    sendResponse(400, json_encode($output)); 	
 	    return false;
     }
     
@@ -238,9 +179,110 @@ class RestAPI {
 			sendResponse(200, $json_data);
 			return true;
 	    }
-	    sendResponse(400, "test");
+	    sendResponse(400, json_encode($json));
 	    return false;
     }
+
+	/*
+	*	get list of favorites from anonymous user uuid.
+	*
+	*	@param PUSH_ID:key @param uuid:anonymous user uuid
+	*/
+	function getUserFavorites(){
+		if(isset($_GET["PUSH_ID"])&&isset($_GET["uuid"])){
+		    if(!$this->checkPushID($_GET["PUSH_ID"])){
+				sendResponse(400,json_encode('test1'));
+				return false;   
+		    }
+			$uuid = stripslashes(strip_tags($_GET["uuid"]));
+			$stmt = $this->db->prepare('select favorite_id from user_favorite where user_user_id = (select user_id from user where uuid=?)');
+			$stmt->bind_param("s",$uuid);
+		    $stmt->execute();
+			$stmt->bind_result($favorite);
+			/* fetch values */
+			while ($stmt->fetch()) {
+				$output[]=array($favorite);
+			}
+		    $stmt->close();	
+			// headers for not caching the results
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Expires: Mon, 26 Jul 2001 05:00:00 GMT');
+			// headers to tell that result is JSON
+			header('Content-type: application/json');
+			sendResponse(200, json_encode($output));
+			return true;
+		}
+		sendResponse(400, json_encode('test2'));
+		return false;
+	}
+	
+	/*
+	*	set a users favorite by favorite_id
+	*
+	*	@param PUSH_ID:push rest key @param uuid: anonymous user id @param favorite_id: item to be favorited
+	*/
+	function setUserFavorite(){
+		if(isset($_POST["PUSH_ID"])&&isset($_POST["uuid"])&&isset($_POST["favorite_id"])){
+		    if(!$this->checkPushID($_POST["PUSH_ID"])){
+				sendResponse(400,'test1');
+				return false;   
+		    }
+		    $user_user_id = stripslashes(strip_tags($_POST["uuid"]));
+		    $favorite_id  = stripslashes(strip_tags($_POST["favorite_id"]));
+			$stmt = $this->db->prepare('INSERT INTO user_favorite (user_user_id,favorite_id) VALUES (?,?)');
+			$stmt->bind_param("ss", $user_user_id, $favorite_id);
+		    $stmt->execute();
+			// fetch values //
+			while ($stmt->fetch()) {
+				$output[]=array($favorite);
+			}
+		    $stmt->close();
+			// headers for not caching the results
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Expires: Mon, 26 Jul 2001 05:00:00 GMT');
+			// headers to tell that result is JSON
+			header('Content-type: application/json');
+			sendResponse(200, json_encode($output));
+			return true;
+		}	
+		sendResponse(400,'test0');
+		return false;
+	}
+	
+	/*
+	*	Adds new anonymous user to the user database
+	*
+	*	@super_global_param PUSH_ID:Push rest key @super_global_param uuid:anonymous uuid for user
+	*/
+	function addNewAnonUser(){
+	    $json;
+		if(isset($_POST["PUSH_ID"])&&isset($_POST["uuid"])){
+		    if(!$this->checkPushID($_POST["PUSH_ID"])){
+				sendResponse(400,'-1');
+				return false;   
+		    }
+		    $uuid = stripslashes(strip_tags($_POST["uuid"]));
+		    
+		    $stmt = $this->db->prepare("SELECT * FROM user WHERE uuid = ?");
+		    $stmt->bind_param("s",$uuid);
+		    $stmt->execute();
+		    $stmt->store_result();
+		    $rows = $stmt->num_rows;
+		    if($rows>0){
+			    sendResponse(400, '-1');
+			    return false;
+		    }
+		    
+		    $stmt = $this->db->prepare('INSERT INTO user (uuid) values(?)');
+		    $stmt->bind_param("s",$uuid);
+		    $stmt->execute();
+			sendResponse(200, '1');
+			return true;
+	    }
+	    sendResponse(400, '0'); 	
+	    return false;
+    }
+
     // end of RestAPI class
 }
  
@@ -249,4 +291,3 @@ class RestAPI {
 $api = new RestAPI;
 $function = $_REQUEST["call"];
 $api->$function();
-?>
