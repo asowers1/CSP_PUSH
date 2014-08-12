@@ -7,8 +7,29 @@ define('DB_DATABASE', 'push_interactive'); // Mysql database name
 $connection = mysql_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD) or die(mysql_error());
 $database = mysql_select_db(DB_DATABASE) or die(mysql_error());
 
+function cleanVariable($variable){
+	return stripcslashes(strip_tags(stripcslashes($variable)));
+}
 
 //$DBH = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_DATABASE.", ".DB_USERNAME.", ".DB_PASSWORD."");
+	
+function search_array($haystack, $needle) {
+    $results = array();
+	
+    foreach ($haystack as $subarray) {
+        $hasValue = false;
+	        
+        foreach($subarray as $value){
+            if(is_string($value) && strpos($value,$needle) !== false){
+                $hasValue = true;
+            }
+        }
+        if($hasValue)
+            $results[] = $subarray;
+    }
+
+    return $results;
+}
 
 function getAllBeaconsFromDB(){
 	$result = mysql_query("SELECT * FROM beacon");
@@ -42,8 +63,11 @@ function getAllRealityFromDB(){
 
 function getAllCampaignsFromDB(){
 	$result = mysql_query("SELECT * FROM campaign");
+	$new_arary = array();
+	$i=0;
 	while( $row = mysql_fetch_assoc( $result)){
-		$new_array[] = $row;
+		$new_array[$i] = $row;
+		$i++;
 	}
 	return $new_array;
 }
@@ -56,6 +80,54 @@ function addNewBeaconToDB($identifier,$uuid,$major,$minor){
 	$result = mysql_query("INSERT INTO beacon (beacon_id,identifier,uuid,major,minor) VALUES(DEFAULT,'$identifier','$uuid',".$major.",".$minor.")");
 	
 }
+
+function addNewCampaign($application_id,$unit_id,$campaign_name){
+	$application_id = cleanVariable($application_id);
+	$campaign_name = cleanVariable($campaign_name);
+	$unit_id = cleanVariable($unit_id);
+	$result = mysql_query("select campaign_name from campaign where campaign_name ='$campaign_name'");
+	if($row = mysql_fetch_assoc($result)){
+		return false;
+	}
+	else{
+		$result = mysql_query("INSERT INTO campaign (application_id,item_name,campaign_name) VALUES ('$application_id','$unit_id','$campaign_name')");
+		return true;
+	}
+}
+
+
+function linkBeaconToCampaign($campaign_name,$beacon_id){
+	$campaign_id = cleanVariable($campaign_name);
+	$beacon_id = cleanVariable($beacon_id);
+	$result = mysql_query("INSERT INTO campaign_has_beacon (campaign_campaign_id, beacon_beacon_id) VALUES ((SELECT campaign_id from campaign WHERE campaign_name ='$campaign_name'),'$beacon_id')");
+	return true;
+}
+
+
+function setupCampaignWithBeacon($campaign_name,$unit_id,$beacon_id){
+	$bool1 = false;
+	$bool2 = false;
+	if (addNewCampaign('2',$unit_id,$campaign_name))$bool1=true;
+	if (linkBeaconToCampaign($campaign_name,$beacon_id))$bool2=true;
+	if ($bool1&&$bool2) return true;
+	return false;
+}
+
+function demolishCampaign($campaign_name){
+	$campaign_id = cleanVariable($campaign_name);
+	$result = mysql_query("DELETE FROM campaign_has_beacon WHERE campaign_campaign_id = (SELECT campaign_id FROM campaign WHERE campaign_name ='$campaign_name')");
+	$result = mysql_query("DELETE FROM campaign WHERE campaign_name = '$campaign_name'");
+}
+
+function getCampaignItem($item_name){
+	$item_name = cleanVariable($item_name);
+	$result = mysql_query("SELECT campaign_name from campaign WHERE item_name = '$item_name'");
+	$campaign_name = mysql_fetch_row($result)[0];
+	$result = mysql_query("SELECT identifier FROM beacon WHERE (SELECT beacon_beacon_id FROM campaign_has_beacon WHERE campaign_campaign_id = (SELECT campaign_id FROM campaign WHERE campaign_name = '$campaign_name'))");
+	$identifier = mysql_fetch_row($result)[0];
+	return array($campaign_name,$identifier);
+}
+
 
 class alphanumaricAsciiConverter {
 

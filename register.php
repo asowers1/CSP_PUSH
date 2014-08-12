@@ -117,7 +117,7 @@
 //hiding form once the registration is successful
  if(!$success) {
  ?>
-<form action="register.php?register=1" method="post" name="myForm" onsubmit="return(validate());">
+<form action="register.php?register=1" method="post" name="myForm" onsubmit="return(validate());" >
 	<fieldset>
 		<legend>Registration Form</legend>
 		<label>Username *</label>

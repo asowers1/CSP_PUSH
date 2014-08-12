@@ -1,4 +1,15 @@
 <?hh
+/**
+*	CSP REST API
+*	Andrew Sowers - Push Interactive, LCC
+*	June-August 2014
+*
+*	return types are json values containing arrays, arrays of dictionaries, strings of -1, 0, and 1.
+*
+*	-1 indicates general failure, 0 indicates false or failure, 1 indicates true or success
+**/
+
+
 
 include_once "rest.php";
 
@@ -51,7 +62,7 @@ class RestAPI {
     *
     *	@PUSH_ID REST API key, @uuid the provided uuid for feting beacon credentials
     *
-    *
+    *	@return array[array[beacon_id,identifier,uuid,major,minor],...]
     */
     function getBeacon() {
 	if (isset($_GET["uuid"])) {
@@ -76,7 +87,7 @@ class RestAPI {
 
 		return true;
 	}
-	sendResponse(400, 'Invalid request beacon');
+	sendResponse(400, '0');
     return false;
     }
     
@@ -90,7 +101,7 @@ class RestAPI {
     function setBeacon() {
 	    if(isset($_POST["beacon_id"])&&isset($_POST["identifier"])&&isset($_POST["uuid"])&&isset($_POST["major"])&&isset($_POST["minor"])&&isset($_POST["PUSH_ID"])){
 			if(!$this->checkPushID($_POST["PUSH_ID"])){
-				sendResponse(400, 'Invalid code');
+				sendResponse(400, "-1");
 				return false;
 			}
 		    $beaconIdIn = $_POST["beacon_id"];
@@ -108,7 +119,7 @@ class RestAPI {
 			return true;
 	    }
 	    // send zero; failure
-	    sendResponse(400, 0);
+	    sendResponse(400, "0");
 	    return false;
     }
     
@@ -148,12 +159,12 @@ class RestAPI {
 				sendResponse(400,json_encode($output));
 				return false;   
 		    }
-		    $stmt = $this->db->prepare('SELECT * FROM beacon');
+		    $stmt = $this->db->prepare("SELECT * FROM beacon WHERE beacon_id != 'null'");
 		    $stmt->execute();
-			$stmt->bind_result($beacon_id,$identifier,$uuid,$major,$minor);
+			$stmt->bind_result($beacon_id,$identifier,$uuid,$major,$minor,$active);
 			/* fetch values */
 			while ($stmt->fetch()) {
-				$output[]=array($beacon_id,$identifier,$uuid,$major,$minor);
+				$output[]=array($beacon_id,$identifier,$uuid,$major,$minor,$active);
 			}
 		    $stmt->close();	
 			// headers for not caching the results
@@ -175,7 +186,7 @@ class RestAPI {
 				sendResponse(400,json_encode($json));
 				return false;   
 		    }
-			include_once("listing_crud.php");
+			include("listing_crud.php");
 			sendResponse(200, $json_data);
 			return true;
 	    }
@@ -200,8 +211,11 @@ class RestAPI {
 		    $stmt->execute();
 			$stmt->bind_result($favorite);
 			/* fetch values */
+			$i=0;
+			$output = array();
 			while ($stmt->fetch()) {
-				$output[]=array($favorite);
+				$output[$i]=$favorite;
+				$i++;
 			}
 		    $stmt->close();	
 			// headers for not caching the results
@@ -217,36 +231,64 @@ class RestAPI {
 	}
 	
 	/*
-	*	set a users favorite by favorite_id
+	*	add a user favorite by favorite_id
 	*
 	*	@param PUSH_ID:push rest key @param uuid: anonymous user id @param favorite_id: item to be favorited
 	*/
-	function setUserFavorite(){
+	function addUserFavorite(){
 		if(isset($_POST["PUSH_ID"])&&isset($_POST["uuid"])&&isset($_POST["favorite_id"])){
 		    if(!$this->checkPushID($_POST["PUSH_ID"])){
-				sendResponse(400,'test1');
+				sendResponse(400,"-1");
 				return false;   
 		    }
 		    $user_user_id = stripslashes(strip_tags($_POST["uuid"]));
 		    $favorite_id  = stripslashes(strip_tags($_POST["favorite_id"]));
-			$stmt = $this->db->prepare('INSERT INTO user_favorite (user_user_id,favorite_id) VALUES (?,?)');
+			$stmt = $this->db->prepare("SELECT * FROM user_favorite WHERE favorite_id = ? AND user_user_id = ?");
+			$stmt->bind_param("ss",$favorite_id,$user_user_id);
+			$stmt->execute();
+			$stmt->store_result();
+		    $rows = $stmt->num_rows;
+		    if($rows>0){
+			    sendResponse(400, '-1');
+			    return false;
+		    }
+			$stmt = $this->db->prepare('INSERT INTO user_favorite (user_user_id,favorite_id) VALUES ((SELECT user_id FROM user WHERE uuid = ?),?)');
 			$stmt->bind_param("ss", $user_user_id, $favorite_id);
 		    $stmt->execute();
-			// fetch values //
-			while ($stmt->fetch()) {
-				$output[]=array($favorite);
-			}
-		    $stmt->close();
-			// headers for not caching the results
-			header('Cache-Control: no-cache, must-revalidate');
-			header('Expires: Mon, 26 Jul 2001 05:00:00 GMT');
-			// headers to tell that result is JSON
-			header('Content-type: application/json');
-			sendResponse(200, json_encode($output));
+
+			sendResponse(200, "1");
 			return true;
 		}	
-		sendResponse(400,'test0');
+		sendResponse(400,"0");
 		return false;
+	}
+	/*
+	*	remove a user favorite by favorite_id
+	*
+	*	@param PUSH_ID:push rest key @param uuid: anonymous user id @param favorite_id: item to be favorited
+	*/
+	function removeUserFavorite(){
+		if(isset($_POST["PUSH_ID"])&&isset($_POST["uuid"])&&isset($_POST["favorite_id"])){
+		    if(!$this->checkPushID($_POST["PUSH_ID"])){
+				sendResponse(400,"-1");
+				return false;   
+		    }
+		    $user_user_id = stripslashes(strip_tags($_POST["uuid"]));
+		    $favorite_id  = stripslashes(strip_tags($_POST["favorite_id"]));
+			$stmt = $this->db->prepare("DELETE FROM user_favorite WHERE favorite_id = ?");
+			$stmt->bind_param("s", $favorite_id);
+		    $stmt->execute();
+			$stmt->store_result();
+		    $rows = $stmt->affected_rows;
+		    if($rows<=0){
+			    sendResponse(400, '-1');
+			    return false;
+		    }
+			sendResponse(200, "1");
+			return true;
+		}	
+		sendResponse(400,"0");
+		return false;		
 	}
 	
 	/*

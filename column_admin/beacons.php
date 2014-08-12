@@ -86,8 +86,8 @@ $beacons = getAllBeaconsExceptNull();
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav side-nav">
             <li><a href="index.php"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li class="active"><a href="beacons.php"><i class="fa fa-bar-chart-o"></i> Beacons</a></li>
-			<li><a href="campagins.php"><i class="fa fa-edit"></i> Neighborhood Campaigns</a></li>
+            <li class="active"><a href="beacons.php"><i class="fa fa-bullseye"></i> Beacons</a></li>
+			<li><a href="campagins.php"><i class="fa fa-building"></i> Neighborhood Campaigns</a></li>
 
           </ul>
 

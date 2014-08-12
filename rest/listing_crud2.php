@@ -1,4 +1,4 @@
-<?hh 
+<?hh
 
 	/*
 	*	Listing CRUD / Parser for Buildium/CSPMGMT data
@@ -6,12 +6,14 @@
 	*	Andrew Sowers - Push Interactive, LLC
 	*
 	*	July, 2014
+	*
+	*	Gets all listings and places each listing into a dictionary. Each Dictionary is placed into an array.
 	*/
 
 
 	// get and normalize data: XML -> JSON -> Array
-	$url = "https://cspmgmt.managebuilding.com/Resident/PublicPages/XMLRentals.ashx?listings=all";
-    $xml = simplexml_load_file($url);	
+	//$url = "https://cspmgmt.managebuilding.com/Resident/PublicPages/XMLRentals.ashx?listings=all";
+    $xml = simplexml_load_file("listing.xml");	
 	$json = json_encode($xml);
 	$array = json_decode($json,TRUE);
 	
@@ -19,12 +21,17 @@
 	// for later parsing
 	function search_array($haystack, $needle) {
 	    $results = array();
-	
+		$hasValue = false;
+		$value = NULL;
+		$subarray = NULL;
+		
 	    foreach ($haystack as $subarray) {
 	        $hasValue = false;
+	        
 	        foreach($subarray as $value){
-	            if(is_string($value) && strpos($value,$needle) !== false)
+	            if(is_string($value) && strpos($value,$needle) !== false){
 	                $hasValue = true;
+	            }
 	        }
 	        if($hasValue)
 	            $results[] = $subarray;
@@ -36,17 +43,54 @@
 	// listings queue for later json encoding
 	$listing_array = array();
 	// loop through all properties
-
-	for($i=0;$i<count($array["Property"]);$i++){
+	$count = count($array["Property"]);
+	for($i=0;$i<$count;$i++){
+		$buildiumID = NULL;
+		$unitID = NULL;
+		$listings_image = NULL;
+		$address = NULL;
+		$available = NULL;
+		$listDate = NULL;
+		$unavailable = NULL;
+		$description = NULL;
+		$beds = NULL;
+		$baths = NULL;
+		$sqft = NULL;
+		$rent = NULL;
+		$heat = NULL;
+		$airConditioning = NULL;
+		$balcony = NULL;
+		$cable = NULL;
+		$carport = NULL;
+		$dishwasher = NULL;
+		$fenced = NULL;
+		$fireplace = NULL;
+		$garage = NULL;
+		$hardwood = NULL;
+		$internet = NULL;
+		$laundry = NULL;
+		$microwave = NULL;
+		$oven = NULL;
+		$refrigerator = NULL;
+		$walk_closet = NULL;
 		
+				
 		$buildiumID = $array["Property"][$i]["Identification"]["IDValue"];
 		$unitID = $array["CustomRecords"][$i]["Record"][4]["Value"];
-		$listings_image = $array["Property"][$i]["Floorplan"]["File"]["Src"];
+		$listings_image = array($array["Property"][$i]["Floorplan"]["File"]["Src"]);
+		if(!is_string($listings_image[0])){
+			$imageCount = count($array["Property"][$i]["Floorplan"]["File"]);
+			$imageArray = array();
+			for ($j = 0;$j<$imageCount;$j++){
+				$imageArray[$j] = $array["Property"][$i]["Floorplan"]["File"][$j]["Src"];
+			}
+			$listings_image = $imageArray;
+		}
 		$address = $array["Property"][$i]["PropertyID"]["Address"]["Address"].", ".$array["Property"][$i]["PropertyID"]["Address"]["City"]." ".$array["Property"][$i]["PropertyID"]["Address"]["State"].", ".$array["Property"][$i]["PropertyID"]["Address"]["PostalCode"];
 		$available = $array["CustomRecords"][$i]["Record"][1]["Value"];
 		$listDate = $array["CustomRecords"][$i]["Record"][2]["Value"];
 		$unavailable = $array["CustomRecords"][$i]["Record"][3]["Value"];
-		$description = NULL;
+		//$description = NULL;
 		if(!is_array($array["Property"][$i]["Information"]["LongDescription"]))
 			$description = $array["Property"][$i]["Information"]["LongDescription"];
 		
@@ -72,14 +116,24 @@
 		//$virtual_tour = $array["Property"][0]; // needed?
 		$walk_closet = search_array($array["Property"][$i]["Floorplan"]["Amenity"],"closets")[0]["Description"];
 		
-		//$favorite = $array["Property"][0]; // done in database
+		//$favorite = $array["Property"][0];
 		
 		$listing = array("buildiumID"=>$buildiumID,"unitID"=>$unitID,"listingsImage"=>$listings_image,"address"=>$address,"available"=>$available,"listDate"=>$listDate,"unavailable"=>$unavailable,"description"=>$description,"beds"=>$beds,"baths"=>$baths,"sqft"=>$sqft,"rent"=>$rent,"heat"=>$heat,"airConditioning"=>$airConditioning,"balcony"=>$balcony,"cable"=>$cable,"carport"=>$carport,"dishwasher"=>$dishwasher,"fenced"=>$fenced,"fireplace"=>$fireplace,"garage"=>$garage,"hardwood"=>$hardwood,"internet"=>$internet,"laundry"=>$laundry,"microwave"=>$microwave,"oven"=>$oven,"refrigerator"=>$refrigerator,"walkCloset"=>$walk_closet);
 		//$data["property".$i]=$listing;
 		// push listing to the stack
 		$listing_array[$i]=$listing;
+		if($address == "1170 East Shore Dr, Ithaca NY, 14850"){
+			echo '<pre>';
+			var_dump(search_array($array["Property"][$i]["Floorplan"]["Room"],"ed")[0]["Count"]);
+			echo '</pre>';
+
+		}
+
+		
 		//echo $i.'<br>';	
 		//echo "<pre>".print_r($array["Property"][$i]["Information"]["LongDescription"])."</pre>";
 	}
+
 	$json_data = json_encode($listing_array,JSON_UNESCAPED_SLASHES);
-    
+
+ 
