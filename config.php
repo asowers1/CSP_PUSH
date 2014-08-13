@@ -1,4 +1,13 @@
 <?hh
+/*
+*	config.php - My CSP Management portal business logic
+*
+*	Andrew Sowers - Push Interactive, LLC
+*
+*	may - august 2014
+*/
+
+
 //Connection to the MySQL Server by Andrew Sowers, for Push Interactive LLC
 define('DB_SERVER', 'localhost'); // Mysql hostname
 define('DB_USERNAME', 'root'); // Mysql username
@@ -13,23 +22,7 @@ function cleanVariable($variable){
 
 //$DBH = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_DATABASE.", ".DB_USERNAME.", ".DB_PASSWORD."");
 	
-function search_array($haystack, $needle) {
-    $results = array();
-	
-    foreach ($haystack as $subarray) {
-        $hasValue = false;
-	        
-        foreach($subarray as $value){
-            if(is_string($value) && strpos($value,$needle) !== false){
-                $hasValue = true;
-            }
-        }
-        if($hasValue)
-            $results[] = $subarray;
-    }
 
-    return $results;
-}
 
 function getAllBeaconsFromDB(){
 	$result = mysql_query("SELECT * FROM beacon");
@@ -39,6 +32,13 @@ function getAllBeaconsFromDB(){
 	return $new_array;
 }
 
+/*
+*	getAllBeaconsExceptNULL
+*
+*	@param Nil
+*
+*	get every beacon from the database, except for the token NULL beacon (empty placeholder beacon)
+*/
 function getAllBeaconsExceptNull(){
 	$result = mysql_query("SELECT * FROM beacon where beacon_id != 0");
 	while($row = mysql_fetch_assoc($result)){
@@ -47,12 +47,28 @@ function getAllBeaconsExceptNull(){
 	return $new_array;
 }
 
+/*
+*	getBeaconIdentFromCampaignID
+*
+*	@param Int: $campaingID
+*
+*	get the beacon identifier associated with a registered campaign
+*/
 function getBeaconIdentFromCampaignID($campaignID){
 	$campaignID = stripcslashes(strip_tags($campaignID));
 	$result = mysql_query("select identifier from beacon where beacon_id = (select beacon_id from campaign where campaign_id = '$campaignID')");
 	return mysql_result($result, 0);
 }
 
+/*
+*	getAllRealityFromDB
+*
+*	@param nil
+*
+*	get all reaity itmes from database and puts into basic array
+*
+*	**POTENTIALLY DEPRECATED**
+*/
 function getAllRealityFromDB(){
 	$result = mysql_query("SELECT * FROM reality");
 	while( $row = mysql_fetch_assoc( $result)){
@@ -61,6 +77,13 @@ function getAllRealityFromDB(){
 	return $new_array;
 }
 
+/*
+*	getAllCampaignsFromDB
+*
+*	@param nil
+*
+*	get every campaign form the database and put into basic array
+*/
 function getAllCampaignsFromDB(){
 	$result = mysql_query("SELECT * FROM campaign");
 	$new_arary = array();
@@ -72,6 +95,13 @@ function getAllCampaignsFromDB(){
 	return $new_array;
 }
 
+/*
+*	addNewBeaconToDB
+*
+*	@param String: $indentifier, String: $uuid, Int $major, Int: $minor
+*
+*	adds new beacon to the database with beacon credentials
+*/
 function addNewBeaconToDB($identifier,$uuid,$major,$minor){
 	$identifier = stripcslashes(strip_tags($identifier));
 	$uuid  = stripcslashes(strip_tags($uuid));
@@ -81,6 +111,13 @@ function addNewBeaconToDB($identifier,$uuid,$major,$minor){
 	
 }
 
+/*
+*	addNewCampaign
+*
+*	@param Int: $applicaiton_id, String: $unit_id, String: $campaign_name
+*
+*	Add new campaign associated with application_id, unit_id, and campaign_name in database
+*/
 function addNewCampaign($application_id,$unit_id,$campaign_name){
 	$application_id = cleanVariable($application_id);
 	$campaign_name = cleanVariable($campaign_name);
@@ -95,7 +132,13 @@ function addNewCampaign($application_id,$unit_id,$campaign_name){
 	}
 }
 
-
+/*
+*	linkBeaconToCampaign
+*
+*	@param String: $campaign_name, String: $beacon_id
+*
+*	links campaign with beacon in campaign_has_beacon table of the database
+*/
 function linkBeaconToCampaign($campaign_name,$beacon_id){
 	$campaign_id = cleanVariable($campaign_name);
 	$beacon_id = cleanVariable($beacon_id);
@@ -103,7 +146,13 @@ function linkBeaconToCampaign($campaign_name,$beacon_id){
 	return true;
 }
 
-
+/*
+*	setupCampaignWithBeacon
+*
+*	@param String: $campaign_name, String: $unit_id, String: $beacon_id
+*
+*
+*/
 function setupCampaignWithBeacon($campaign_name,$unit_id,$beacon_id){
 	$bool1 = false;
 	$bool2 = false;
@@ -113,12 +162,26 @@ function setupCampaignWithBeacon($campaign_name,$unit_id,$beacon_id){
 	return false;
 }
 
+/*
+*	demolishCampaign
+*
+*	@param String: $campaign_name 
+*
+*	removes a campaign from the database by name
+*/
 function demolishCampaign($campaign_name){
 	$campaign_id = cleanVariable($campaign_name);
 	$result = mysql_query("DELETE FROM campaign_has_beacon WHERE campaign_campaign_id = (SELECT campaign_id FROM campaign WHERE campaign_name ='$campaign_name')");
 	$result = mysql_query("DELETE FROM campaign WHERE campaign_name = '$campaign_name'");
 }
 
+/*
+*	getCampaignsItem
+*
+*	@param String: $item_name
+*
+*	get item from campaign, return as array
+*/
 function getCampaignItem($item_name){
 	$item_name = cleanVariable($item_name);
 	$result = mysql_query("SELECT campaign_name from campaign WHERE item_name = '$item_name'");
@@ -128,7 +191,70 @@ function getCampaignItem($item_name){
 	return array($campaign_name,$identifier);
 }
 
+/*
+*	getUserFavorites
+*
+*	get all user favorites from database, returns as basic array
+*/
+function getUserFavorites(){
+	$result = mysql_query('SELECT * FROM user_favorite');
+	$new_arary = array();
+	$i=0;
+	while( $row = mysql_fetch_assoc( $result)){
+		$new_array[$i] = $row;
+		$i++;
+	}
+	return $new_array;
+}
 
+/*
+*	getUserFavoritesWithTrimmedDates
+*
+*	gets user_id, favorite_id, date of favorite from database, puts contents into basic array
+*/
+function getUserFavoritesWithTrimmedDates(){
+	$result = mysql_query('SELECT user_user_id, favorite_id, date(triggered) FROM user_favorite');
+	$new_arary = array();
+	$i=0;
+	while( $row = mysql_fetch_assoc( $result)){
+		$new_array[$i] = $row;
+		$i++;
+	}
+	return $new_array;
+}
+
+/*
+*	arrayCountOfFavoritesByDay
+*
+*	grabs all favorites with trimmed date, counts by date, returns array of favorites by day 
+*/
+function arrayCountOfFavoritesByDay(){
+	$userFavorites = getUserFavoritesWithTrimmedDates();
+	$favoritesCount = count($userFavorites);
+	if($favoritesCount>0){
+		$result = array(array("date"=>$userFavorites[0]["date(triggered)"],"count"=>1));
+		for($i=1;$i<$favoritesCount;$i++){
+			$d1 = new DateTime($userFavorites[$i-1]["date(triggered)"]);
+	        $d2 = new DateTime($userFavorites[$i]["date(triggered)"]);
+	        $diff=$d1->diff($d2);
+	        if($diff->format('%d')==0){
+	        	$result[count($result)-1]["count"]++;
+	        }else{
+	          	array_push($result,array("date"=>$userFavorites[$i]["date(triggered)"],"count"=>1));
+			}
+		}
+		return $result;
+	}else{
+		return array();
+	}
+}
+
+/*
+*	Class: alphanumaricAsciiConverter
+*
+*	encode/decode alphanumaric ident based on ascii values
+*
+*/
 class alphanumaricAsciiConverter {
 
 	private function asciiToAlphanum($char){
@@ -168,6 +294,3 @@ class alphanumaricAsciiConverter {
 		return array($digit0,$digit1,$digit2,$digit3);
 	}
 }
-
-
-

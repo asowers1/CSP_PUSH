@@ -1,5 +1,8 @@
 // First Chart Example - Area Line Chart
 
+
+
+
 Morris.Area({
   // ID of the element in which to draw the chart.
   element: 'morris-chart-area',
@@ -7,18 +10,17 @@ Morris.Area({
   // the chart.
   
   
-  data: [
-	{ d: '2012-10-01', visits: test[0] },
-  ],
+  data: test,
   // The name of the data record attribute that contains x-visitss.
-  xkey: 'd',
+  xkey: 'date',
   // A list of names of data record attributes that contain y-visitss.
-  ykeys: ['visits'],
+  ykeys: ['count'],
   // Labels for the ykeys -- will be displayed when you hover over the
   // chart.
-  labels: ['Visits'],
+  labels: ['Favorites per day'],
   // Disables line smoothing
   smooth: false,
+  resize: true,
 });
 
 Morris.Donut({

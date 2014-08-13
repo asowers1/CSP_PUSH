@@ -13,7 +13,7 @@
 
 	// get and normalize data: XML -> JSON -> Array
 	//$url = "https://cspmgmt.managebuilding.com/Resident/PublicPages/XMLRentals.ashx?listings=all";
-    $xml = simplexml_load_file("listing.xml");	
+    	$xml = simplexml_load_file("listing.xml");
 	$json = json_encode($xml);
 	$array = json_decode($json,TRUE);
 	

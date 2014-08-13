@@ -3,10 +3,13 @@
 include ('header.php');
 include ('../rest/listing_crud.php');
 //$campagins = getAllCampaignsFromDB();
-	$register = $_GET['register'];
+	$register = '';
+  if(isset($_GET['register'])){
+    $register = $_GET['register'];
+  }
 	//$completeurl = $_SERVER['DOCUMENT_ROOT'].'/csp_portal/rest/listing.xml';
 	$url = "https://cspmgmt.managebuilding.com/Resident/PublicPages/XMLRentals.ashx?listings=all";
-    $xml = simplexml_load_file($url);
+  $xml = simplexml_load_file($url);
 	$xml->asXml("/usr/share/nginx/html/csp_portal/rest/listing.xml");
 	$beacons = getAllBeaconsExceptNull();
 	$listings = json_decode(file_get_contents('http://experiencepush.com/csp_portal/rest/index.php?PUSH_ID=123&call=getAllListings'), true);	$units = array();
@@ -164,7 +167,7 @@ include ('../rest/listing_crud.php');
 		                   <td>'.$test.'</td>
 		                   <td>'.$index["unitID"].'</td>
 		                   <td>'.$index["address"].'</td>
-		                   <td><img src="'.$index["listingsImage"].'" width=256></td>
+		                   <td><img src="'.$index["listingsImage"][0].'" width=256></td>
 		                 </tr> ';
 
 	            }
