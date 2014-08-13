@@ -250,6 +250,19 @@ function arrayCountOfFavoritesByDay(){
 }
 
 /*
+*	arrayTopFiveFavoritesAllTime
+*
+*	@param Nil
+*
+*	parses listings and picks the highest favorites
+*/
+function arrayTopFiveFavoritesAllTime(){
+	$favoritesByDay = arrayCountOfFavoritesByDay();
+	array_multisort($favoritesByDay);
+	return $favoritesByDay;
+}
+
+/*
 *	Class: alphanumaricAsciiConverter
 *
 *	encode/decode alphanumaric ident based on ascii values
