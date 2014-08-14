@@ -325,6 +325,54 @@ class RestAPI {
 	    return false;
     }
 
+    /*
+    *	registerBeacon
+    *
+    *	registers beacon
+    *
+    *	@super_global_param PUSH_ID: Push rest key, beacon_id: beacon code identy, identifier: beacon english name
+    */
+    function registerBeacon(){
+		if(isset($_POST["PUSH_ID"])&&isset($_POST["beacon_id"])&&isset($_POST["identifier"])){
+		    if(!$this->checkPushID($_POST["PUSH_ID"])){
+				sendResponse(400,'-1');
+				return false;   
+		    }
+		    $beacon_id  = stripslashes(strip_tags($_POST["beacon_id"]));
+		    $identifier = stripcslashes(strip_tags($_POST["identifier"]));
+
+		    $stmt = $this->db->prepare("SELECT * FROM beacon WHERE beacon_id = ? and active = 1");
+		    $stmt->bind_param("s",$beacon_id);
+		    $stmt->execute();
+		    $stmt->store_result();
+		    $rows = $stmt->num_rows;
+		    if($rows>0){
+			    sendResponse(400, '-1');
+			    return false;
+		    }
+		    
+		    $stmt = $this->db->prepare('UPDATE beacon SET identifier=?, active=1 WHERE beacon_id = ?');
+		    $stmt->bind_param("ss",$identifier,$beacon_id);
+		    $stmt->execute();
+			sendResponse(200, '1');
+			return true;
+	    }
+	    sendResponse(400, '0'); 	
+	    return false;
+    }
+
+    /*
+    *	deregisterBeacon
+    *
+    *	deregisters beacon
+    *
+    *	@super_global_param PUSH_ID: Push rest key, beacon_id: beacon code identy, identifier: beacon english name
+    */
+    function deregisterBeacon(){
+
+    }
+
+
     // end of RestAPI class
 }
  

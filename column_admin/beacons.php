@@ -3,43 +3,40 @@
 include ('header.php');
 
 // gets all beacons for viewing later in the table; excludes the null beacon marker (beacon_id 0)
-$beacons = getAllBeaconsExceptNull();
-	$register = $_GET['register'];
-	
-	if($register == 1 && !empty($_POST)) // Checks if the form is submitted or not
+  $beacons = getAllBeaconsExceptNull();
+	$register = '';
+  if(isset($_GET['register'])){
+    $register = $_GET['register'];
+  }
+	if($register == '1' && !empty($_POST)) // Checks if the form is submitted or not
 	{
 	
 	//retrieve all submitted data from the form
 	$identifier = $_POST["identifier"];
-	$uuid = $_POST["uuid"];
-	$major = $_POST["major"];
-	$minor = $_POST["minor"];
-	
-	
-	$sql1="SELECT * FROM beacon WHERE uuid='$uuid' and major=".$major." and minor=".$minor." or identifier=".$identifier.""; // checking beacon already exists
-	$qry1=mysql_query($sql1);
+  $beaconID = $_POST["beaconID"];
 
-	
+	// checking beacon exists
+	$qry1=mysql_query("SELECT * FROM beacon WHERE beacon_id = '".$beaconID."'");
 	$num_rows = mysql_num_rows($qry1);
 	
-	
 	//alert if it already exists
-	if($num_rows > 0)
+	if($num_rows == 1)
 	{
-		echo '<center>
-		<div class="alert">
-		  <button type="button" class="close" data-dismiss="alert">&times;</button>
-		  <strong>This Beacon or identifier already exists in the database!</strong> please use another or contact andrew@experiencepush.com for assistance.
-		</div>
-		</center>
-		';
+    registerBeaconFromDB($beaconID,$identifier);
+    $register=0;
+    Header('Location: '.$_SERVER['PHP_SELF']);
+    Exit(); //optional
 	}
 	else
 	{
-		addNewBeaconToDB($identifier,$uuid,$major,$minor);
-		$register=0;
-		Header('Location: '.$_SERVER['PHP_SELF']);
-		Exit(); //optional
+
+    echo '<center>
+    <div class="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong>This Beacon or identifier already exists in the database!</strong> please use another or contact andrew@experiencepush.com for assistance.
+    </div>
+    </center>
+    ';
 	}
 	}
 
@@ -145,7 +142,7 @@ $beacons = getAllBeaconsExceptNull();
           <div class="col-lg-12">
             <h1>Beacons <small>Administrate and deploy your beacons</small></h1>
             <ol class="breadcrumb">
-              <li class="active"><i class="fa fa-bar-chart-o"></i> <?php echo $username;?>'s Beacons</li>
+              <li class="active"><i class="fa fa fa-bullseye"></i> <?php echo $username;?>'s Beacons</li>
             </ol>
             
           </div>
@@ -180,17 +177,17 @@ $beacons = getAllBeaconsExceptNull();
             </div>
           </div>
           <div class="col-lg-6">
-            <h1>Add new Beacon</h1>
-            <form action="beacons.php?register=1" method="POST" name="myForm" onsubmit="return(validate());">
+            <h1>Add or modify Beacon</h1>
+            <form action="beacons.php?register=1" method="POST" name="myForm" onSubmit="return validate(this); return false;">
               <div class="form-group input-group">
                 <span class="input-group-addon">Identifier</span>
                 <input type="text" name="identifier" class="form-control" placeholder="e.g. South Danby front door">
               </div>
               <div class="form-group input-group">
                 <span class="input-group-addon">Beacon ID</span>
-                <input type="text" name="beaconId" class="form-control" placeholder="e.g. 7A9A">
+                <input type="text" name="beaconID" class="form-control" placeholder="e.g. 7A9A">
               </div>
-			<button type="submit" class="btn btn-default">Submit Beacon</button>
+			       <button type="submit" class="btn btn-default">Submit Beacon</button>
             </form>
           </div>
 	    </div><!-- /.row -->
@@ -199,7 +196,7 @@ $beacons = getAllBeaconsExceptNull();
 
     <!-- JavaScript -->
     <script type="text/javascript">
-		function validate()
+		function validate(f)
 		{
 			if( document.myForm.identifier.value == "")
 			{
@@ -207,34 +204,16 @@ $beacons = getAllBeaconsExceptNull();
 				document.myForm.identifier.focus();
 				return false;
 			}
-		
-			if( document.myForm.uuid.value == "")
-			{
-				alert( "Please provide correct UUID");
-				document.myForm.uuid.focus();
-				return false;
-			}
-		
-		   if( document.myForm.major.value == "" )
-		   {
-		     alert( "Please provide correct Major ID" );
-		     document.myForm.major.focus() ;
-		     return false;
-		   }
-		
-		   if( document.myForm.minor.value == "" )
-		   {
-		     alert( "Please provide correct Minor ID" );
-		     document.myForm.minor.focus() ;
-		     return false;
-		   } 
-		   	if(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(document.myForm.uuid.value)!=true){
-			   alert("Please prvoide a valid UUID");
-			   document.myForm.uuid.focus();
-			   return false;
-		   }
-		
-		   return( true );
+
+      else if( document.myForm.beaconID.value == "")
+      {
+        alert("Please provide a beacon ID");
+        document.myForm.beaconID.focus();
+        return false;
+      }else{
+            f.submit();
+          return true;
+        }
 		}
 	</script>
     <script src="js/jquery-1.10.2.js"></script>

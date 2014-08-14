@@ -62,7 +62,7 @@ function getAllBeaconsFromDB(){
 *	get every beacon from the database, except for the token NULL beacon (empty placeholder beacon)
 */
 function getAllBeaconsExceptNull(){
-	$result = mysql_query("SELECT * FROM beacon where beacon_id != 0");
+	$result = mysql_query("SELECT * FROM beacon where beacon_id != 0 AND active = 1");
 	while($row = mysql_fetch_assoc($result)){
 		$new_array[] = $row;
 	}
@@ -129,8 +129,43 @@ function addNewBeaconToDB($identifier,$uuid,$major,$minor){
 	$uuid  = stripcslashes(strip_tags($uuid));
 	$major = stripcslashes(strip_tags($major));
 	$minor = stripcslashes(strip_tags($minor));
-	$result = mysql_query("INSERT INTO beacon (beacon_id,identifier,uuid,major,minor) VALUES(DEFAULT,'$identifier','$uuid',".$major.",".$minor.")");
-	
+	$result = mysql_query("INSERT INTO beacon (beacon_id,uuid,major,minor) VALUES(DEFAULT,'$identifier','$uuid',".$major.",".$minor.")");
+}
+
+/*
+*	registerBeaconFromDB
+*
+*	@param String: $beacon_id, String: $identifier
+*
+*	registers beacon from database and adds engish name / enables beacons use for application
+*/
+function registerBeaconFromDB($beacon_id,$identifier){
+	$beacon_id  = cleanVariable($beacon_id);
+	$identifier = cleanVariable($identifier); 
+	$result = mysql_query("SELECT * FROM beacon WHERE beacon_id = '$beacon_id'");
+	if($row = mysql_fetch_assoc($result)){
+		$result = mysql_query("UPDATE beacon SET identifier='$identifier', active=1 WHERE beacon_id = '$beacon_id'");
+		return true;
+	}
+	return false;
+}
+
+/*
+*	deregisterBeaconFromDB
+*
+*	@param String: $beacon_id, String: $identifier
+*
+*	deregisters beacon from database and removes engish name / disables beacons use for application
+*/
+function deregisterBeaconFromDB($beacon_id,$identifier){
+	$beacon_id  = cleanVariable($beacon_id);
+	$identifier = cleanVariable($identifier); 
+	$result = mysql_query("SELECT * FROM beacon WHERE beacon_id = '$beacon_id' AND identifier = '$identifier'");
+	if($row = mysql_fetch_assoc($result)){
+		$result = mysql_query("UPDATE beacon SET identifer='NULL', active=0 WHERE beacon_id = '$beacon_id'");
+		return true;
+	}
+	return false;
 }
 
 /*
