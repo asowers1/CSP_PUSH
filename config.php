@@ -22,7 +22,29 @@ function cleanVariable($variable){
 
 //$DBH = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_DATABASE.", ".DB_USERNAME.", ".DB_PASSWORD."");
 	
+/*
+*	aasort
+*
+*	@param ArrayReference: &$array, AnyObject: $key  
+*
+*	helper function that sorts an array based on a specified key, based on PHPs built in selection sort
+*/
+function aasort (&$array, $key) {
+    $sorter=array();
+    $ret=array();
+    reset($array);
 
+    foreach ($array as $ii => $va) {
+            foreach ($array[$ii] as $i => $val) {
+                $sorter[$ii]=$val[$key];
+            }
+    }
+    asort($sorter);
+    foreach ($sorter as $element => $value) {
+        $ret[$element]=$array[$element];
+    }
+    $array=$ret;
+}
 
 function getAllBeaconsFromDB(){
 	$result = mysql_query("SELECT * FROM beacon");
@@ -207,6 +229,17 @@ function getUserFavorites(){
 	return $new_array;
 }
 
+function getTodaysUserFavorites(){
+	$result = mysql_query('SELECT * FROM user_favorite WHERE date(triggered) = current_date()');
+	$new_arary = array();
+	$i=0;
+	while( $row = mysql_fetch_assoc( $result)){
+		$new_array[$i] = $row;
+		$i++;
+	}
+	return $new_array;
+}
+
 /*
 *	getUserFavoritesWithTrimmedDates
 *
@@ -250,16 +283,97 @@ function arrayCountOfFavoritesByDay(){
 }
 
 /*
-*	arrayTopFiveFavoritesAllTime
+*	arrayTodaysFavorites
 *
 *	@param Nil
 *
+*	gets todays favorites from database and puts into sorted array
+*/
+function arrayTodaysFavorites($listings){
+	$favortes = getTodaysUserFavorites();
+	$favoriteCount = count($favortes);
+	$result = array();
+	foreach ($favortes as $array) {
+		array_push($result,$array["favorite_id"]);
+	}
+	sort($result);
+	$resultCount = count($result);
+	$return = array();
+	if($resultCount>0){
+		array_push($return,array("label"=>$result[0],"value"=>1));
+		for($i=1;$i<$favoriteCount;$i++){
+			if($result[$i]==$result[$i-1]){
+				$return[count($return)-1]["value"]++;
+			}else{
+				array_push($return,array("label"=>$result[$i],"value"=>1));
+			}
+		}
+		$returnCount = count($return);
+		$listingsCount = count($listings);
+		usort($return, function ($a, $b) { return $b['value'] - $a['value']; });
+		for($i=0;$i<$returnCount;$i++){
+			for($j=0;$j<$listingsCount;$j++){
+
+				if($return[$i]["label"]==$listings[$j]["unitID"]){
+					$address =$listings[$j]["address"];
+					$commaPos = strpos($address,',');
+
+					$return[$i]["label"]=substr($address,0,$commaPos);
+					break;
+				}
+			}
+		}
+		return $return;
+	}else{
+		return $return;
+	}
+}
+
+/*
+*	arrayTopFiveFavoritesAllTime
+*
+*	@param Int: $limit, Multidimensional Array: $listings
+*
 *	parses listings and picks the highest favorites
 */
-function arrayTopFiveFavoritesAllTime(){
-	$favoritesByDay = arrayCountOfFavoritesByDay();
-	array_multisort($favoritesByDay);
-	return $favoritesByDay;
+function arrayTopFavoritesAllTime($limit,$listings){
+	$favorites = getUserFavorites();
+	$favoritesCount = count($favorites);
+	$result = array();
+	foreach ($favorites as $array) {
+		array_push($result,$array["favorite_id"]);
+	}
+	sort($result);
+	$resultCount = count($result);
+	$return = array();
+	if($resultCount>0){
+		array_push($return,array("label"=>$result[0],"value"=>1));
+		for($i=1;$i<$favoritesCount;$i++){
+			if($result[$i]==$result[$i-1]){
+				$return[count($return)-1]["value"]++;
+			}else{
+				array_push($return,array("label"=>$result[$i],"value"=>1));
+			}
+		}
+		$returnCount = count($return);
+		$listingsCount = count($listings);
+		usort($return, function ($a, $b) { return $b['value'] - $a['value']; });
+		for($i=0;$i<$returnCount;$i++){
+			for($j=0;$j<$listingsCount;$j++){
+
+				if($return[$i]["label"]==$listings[$j]["unitID"]){
+					$address =$listings[$j]["address"];
+					$commaPos = strpos($address,',');
+
+					$return[$i]["label"]=substr($address,0,$commaPos);
+					break;
+				}
+			}
+		}
+		return $return;
+	}else{
+		return $return;
+	}
 }
 
 /*

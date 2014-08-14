@@ -10,7 +10,7 @@ Morris.Area({
   // the chart.
   
   
-  data: test,
+  data: favoritesByDay,
   // The name of the data record attribute that contains x-visitss.
   xkey: 'date',
   // A list of names of data record attributes that contain y-visitss.
@@ -19,35 +19,23 @@ Morris.Area({
   // chart.
   labels: ['Favorites per day'],
   // Disables line smoothing
-  smooth: false,
+  smooth: true,
   resize: true,
 });
 
 Morris.Donut({
   element: 'morris-chart-donut',
-  data: [
-    {label: "Referral", value: 42.7},
-    {label: "Direct", value: 8.3},
-    {label: "Social", value: 12.8},
-    {label: "Organic", value: 36.2}
-  ],
-  formatter: function (y) { return y + "%" ;}
+  data: topFavorites,
+  formatter: function (y) { return y + " favorites";}
 });
 
 
 Morris.Bar ({
   element: 'morris-chart-bar',
-  data: [
-	{device: 'iPhone', geekbench: 136},
-	{device: 'iPhone 3G', geekbench: 137},
-	{device: 'iPhone 3GS', geekbench: 275},
-	{device: 'iPhone 4', geekbench: 380},
-	{device: 'iPhone 4S', geekbench: 655},
-	{device: 'iPhone 5', geekbench: 1571}
-  ],
-  xkey: 'device',
-  ykeys: ['geekbench'],
-  labels: ['Geekbench'],
+  data: todaysFavorites,
+  xkey: 'label',
+  ykeys: ['value'],
+  labels: ['label'],
   barRatio: 0.4,
   xLabelAngle: 35,
   hideHover: 'auto'
