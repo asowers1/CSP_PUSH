@@ -22,29 +22,6 @@ function cleanVariable($variable){
 
 //$DBH = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_DATABASE.", ".DB_USERNAME.", ".DB_PASSWORD."");
 	
-/*
-*	aasort
-*
-*	@param ArrayReference: &$array, AnyObject: $key  
-*
-*	helper function that sorts an array based on a specified key, based on PHPs built in selection sort
-*/
-function aasort (&$array, $key) {
-    $sorter=array();
-    $ret=array();
-    reset($array);
-
-    foreach ($array as $ii => $va) {
-            foreach ($array[$ii] as $i => $val) {
-                $sorter[$ii]=$val[$key];
-            }
-    }
-    asort($sorter);
-    foreach ($sorter as $element => $value) {
-        $ret[$element]=$array[$element];
-    }
-    $array=$ret;
-}
 
 function getAllBeaconsFromDB(){
 	$result = mysql_query("SELECT * FROM beacon");
@@ -264,6 +241,13 @@ function getUserFavorites(){
 	return $new_array;
 }
 
+/*
+*	getTodaysUserFavorites
+*
+*	@param Nil
+*
+*	gets todays favorites and puts them into an array
+*/
 function getTodaysUserFavorites(){
 	$result = mysql_query('SELECT * FROM user_favorite WHERE date(triggered) = current_date()');
 	$new_arary = array();

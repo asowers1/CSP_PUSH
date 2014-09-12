@@ -61,9 +61,7 @@ include ('header.php');
     <!-- Page Specific CSS -->
     <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
   </head>
-
   <body>
-
     <div id="wrapper">
 
       <!-- Sidebar -->
@@ -166,10 +164,10 @@ include ('header.php');
                 for($i=0;$i<count($beacons);$i++){
                 	$index = $beacons[$i];
 	                echo '
-	                  <tr>
-	                    <td>'.$index["identifier"].'</td>
-	                    <td>'.$index["beacon_id"].'</td>
-	                  </tr> ';
+	                  <TR>
+	                    <TD>'.$index["identifier"].'</TD>
+	                    <TD>'.$index["beacon_id"].'</TD>
+	                  </TR> ';
 	            }
                 ?>
                 </tbody>
@@ -193,7 +191,6 @@ include ('header.php');
 	    </div><!-- /.row -->
       </div><!-- /#page-wrapper -->
     </div><!-- /#wrapper -->
-
     <!-- JavaScript -->
     <script type="text/javascript">
 		function validate(f)
@@ -215,19 +212,15 @@ include ('header.php');
           return true;
         }
 		}
-	</script>
-    <script src="js/jquery-1.10.2.js"></script>
-    <script src="js/bootstrap.js"></script>
-
-    <!-- Page Specific Plugins -->
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-    <script src="http://cdn.oesmith.co.uk/morris-0.4.3.min.js"></script>
-    <script src="js/morris/chart-data-morris.js"></script>
-    <script src="js/tablesorter/jquery.tablesorter.js"></script>
-    <script src="js/tablesorter/tables.js"></script>
-    
-
-
+  </script>
+  <script src="js/jquery-1.10.2.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <!-- Page Specific Plugins -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+  <script src="http://cdn.oesmith.co.uk/morris-0.4.3.min.js"></script>
+  <script src="js/morris/chart-data-morris.js"></script>
+  <script src="js/tablesorter/jquery.tablesorter.js"></script>
+  <script src="js/tablesorter/tables.js"></script>
   </body>
 </html>
 

@@ -119,18 +119,18 @@ include ('../rest/listing_crud.php');
               <div class="form-group">
                 <label>Beacon ID</label>
                 <select class="form-control" name="beacon_id">
-				  <?php for($j=0;$j<$beacon_count;$j++)echo '<option>'.$beacons[$j]["beacon_id"].': '.$beacons[$j]["identifier"].'</option>'?>
-				</select>
+				          <?php for($j=0;$j<$beacon_count;$j++)echo '<option>'.$beacons[$j]["beacon_id"].': '.$beacons[$j]["identifier"].'</option>'?>
+				        </select>
               </div>
               <div class="form-group">
                 <label>Unit ID</label>
                 <select class="form-control" name="unit_id">
-				  <?php for($j=0;$j<$count;$j++)echo '<option>'.$units[$j].'</option>'?>
-				</select>
+				          <?php for($j=0;$j<$count;$j++)echo '<option>'.$units[$j].'</option>'?>
+				        </select>
               </div>
-			<button type="submit" class="btn btn-default">Link Beacon To Unit</button>
+			       <button type="submit" class="btn btn-default">Link Beacon To Unit</button>
             </form>
-		</div>		
+		    </div>		
         <div class="col-lg-12">
             <h1 class="fa fa-building-o"> Registered Listings</h1>
             <div class="table-responsive">
@@ -162,16 +162,14 @@ include ('../rest/listing_crud.php');
 			            </form>
 			            <?php';				
                 	}
-					echo '
+					         echo '
 		                 <tr>
 		                   <td>'.$test.'</td>
 		                   <td>'.$index["unitID"].'</td>
 		                   <td>'.$index["address"].'</td>
 		                   <td><img src="'.$index["listingsImage"][0].'" width=256></td>
 		                 </tr> ';
-
-	            }
-	            
+	                 }
                 ?>
                 </tbody>
               </table>
@@ -180,7 +178,6 @@ include ('../rest/listing_crud.php');
 	    </div><!-- /.row -->
       </div><!-- /#page-wrapper -->
     </div><!-- /#wrapper -->
-
     <!-- JavaScript -->
     <script>
 		function validate(f)

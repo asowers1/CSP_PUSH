@@ -4,15 +4,18 @@
 *	Andrew Sowers - Push Interactive, LCC
 *	June-August 2014
 *
+*	RETURN SCHEMA:
 *	return types are json values containing arrays, arrays of dictionaries, strings of -1, 0, and 1.
 *
-*	-1 indicates general failure, 0 indicates false or failure, 1 indicates true or success
+*	-1 indicates general falsity or failure (maybe a duplicate record), 0 indicates failure to supply proper parameters, 1 indicates true or success
+*	no response indicates no action took place
 **/
 
 
 
 include_once "rest.php";
 
+// helper dbClass - may not be needed.
 class dbFunction {
 	
 	/*
@@ -34,9 +37,15 @@ class dbFunction {
 	}
 }
 
+/*
+*	RestAPI
+*
+*	the RESTful API for interfacing with the front end app and backend db
+*
+*/
 class RestAPI {
     
-    // Main method to redeem a code
+    // Main database object
     private $db;
  
     // Constructor - open DB connection
@@ -159,12 +168,12 @@ class RestAPI {
 				sendResponse(400,json_encode($output));
 				return false;   
 		    }
-		    $stmt = $this->db->prepare("SELECT * FROM beacon WHERE beacon_id != 'null'");
+		    $stmt = $this->db->prepare("SELECT beacon_id, identifier, uuid, major, minor FROM beacon WHERE beacon_id != 'null' AND active != 0");
 		    $stmt->execute();
-			$stmt->bind_result($beacon_id,$identifier,$uuid,$major,$minor,$active);
+			$stmt->bind_result($beacon_id,$identifier,$uuid,$major,$minor);
 			/* fetch values */
 			while ($stmt->fetch()) {
-				$output[]=array($beacon_id,$identifier,$uuid,$major,$minor,$active);
+				$output[]=array($beacon_id,$identifier,$uuid,$major,$minor);
 			}
 		    $stmt->close();	
 			// headers for not caching the results
@@ -202,11 +211,11 @@ class RestAPI {
 	function getUserFavorites(){
 		if(isset($_GET["PUSH_ID"])&&isset($_GET["uuid"])){
 		    if(!$this->checkPushID($_GET["PUSH_ID"])){
-				sendResponse(400,json_encode('test1'));
+				sendResponse(400,json_encode(null));
 				return false;   
 		    }
 			$uuid = stripslashes(strip_tags($_GET["uuid"]));
-			$stmt = $this->db->prepare('select favorite_id from user_favorite where user_user_id = (select user_id from user where uuid=?)');
+			$stmt = $this->db->prepare('SELECT favorite_id FROM user_favorite WHERE user_user_id = (SELECT user_id FROM user WHERE uuid=?)');
 			$stmt->bind_param("s",$uuid);
 		    $stmt->execute();
 			$stmt->bind_result($favorite);
@@ -226,7 +235,7 @@ class RestAPI {
 			sendResponse(200, json_encode($output));
 			return true;
 		}
-		sendResponse(400, json_encode('test2'));
+		sendResponse(400, json_encode(null));
 		return false;
 	}
 	
@@ -367,17 +376,89 @@ class RestAPI {
     *	deregisters beacon
     *
     *	@super_global_param PUSH_ID: Push rest key, beacon_id: beacon code identy, identifier: beacon english name
+    *
+    *	TODO - not needed, for now.
     */
     function deregisterBeacon(){
 
     }
+
+    /*
+    *	getCampaignHasBeacon
+    *
+    *	@super_global_param PUSH_ID: Push rest key
+    *
+    *	gets a multidimentional array of campaigns tied to units and beacons: [[campaign_id,unit_id,beacon_id],...]
+    */
+    function getCampaignHasBeacon(){
+		if(isset($_GET["PUSH_ID"])){
+		    if(!$this->checkPushID($_GET["PUSH_ID"])){
+				sendResponse(400,"0");
+				return false;   
+		    }
+			$stmt = $this->db->prepare('SELECT campaign_campaign_id,(SELECT item_name FROM campaign WHERE campaign_id = campaign_campaign_id),beacon_beacon_id  FROM campaign_has_beacon');
+		    $stmt->execute();
+			$stmt->bind_result($campaign_id,$item_name,$beacon_beacon_id);
+			/* fetch values */
+			$i=0;
+			$output = array();
+			while ($stmt->fetch()) {
+				$output[$i]=array($campaign_id,$item_name,$beacon_beacon_id);
+				$i++;
+			}
+		    $stmt->close();	
+			// headers for not caching the results
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Expires: Mon, 26 Jul 2001 05:00:00 GMT');
+			// headers to tell that result is JSON
+			header('Content-type: application/json');
+			sendResponse(200, json_encode($output));
+			return true;
+		}
+		sendResponse(400, "-1");
+		return false;
+    }
+
+    /*
+    *	registerTriggeredBeaconAction
+    *
+    *	@super_global_param PUSH_ID: Push rest key, campaign_id: name of campaign, clicked: 1(yes) or 0(no), uuid: anonymous user uuid
+    *
+	*	register an action tied to beacon and record clickthrough
+	*/
+	function registerTriggeredBeaconAction(){
+		if(isset($_POST["PUSH_ID"])&&isset($_POST["campaign_id"])&&isset($_POST["action_type"])&&isset($_POST["clicked"])&&isset($_POST["uuid"])){
+		    if(!$this->checkPushID($_POST["PUSH_ID"])){
+				sendResponse(400,'-1');
+				return false;   
+		    }
+		    $campaign_id = stripslashes(strip_tags($_POST["campaign_id"]));
+		    $action_type = stripslashes(strip_tags($_POST["action_type"]));
+		    $clicked     = stripslashes(strip_tags($_POST["clicked"]));
+			$uuid        = stripslashes(strip_tags($_POST["uuid"]));
+		    
+		    $stmt = $this->db->prepare("INSERT INTO action (campaign_id,action_type,clicked,user_user_id) VALUES (?,?,?,(SELECT user_id FROM user WHERE uuid=?))");
+		    $stmt->bind_param("ssis",$campaign_id,$action_type,$clicked,$uuid);
+		    $stmt->execute();
+		    $stmt->store_result();
+		    //$rows = $stmt->num_rows;
+		    //if($rows<=0){
+			//    sendResponse(400, '-1');
+			//    return false;
+		    //}
+
+			sendResponse(200, '1');
+			return true;
+	    }
+	    sendResponse(400, '0'); 	
+	    return false;	
+	}
 
 
     // end of RestAPI class
 }
  
 // This is the first thing that gets called when this page is loaded
-// Creates a new instance of the RedeemAPI class and calls the redeem method
+// Creates a new instance of the RestAPI class and executes the rest method in the $_REQUEST super global array
 $api = new RestAPI;
-$function = $_REQUEST["call"];
-$api->$function();
+$api->$_REQUEST["call"]();

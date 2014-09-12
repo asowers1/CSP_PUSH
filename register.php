@@ -16,6 +16,8 @@
 	$password = strip_tags($password);
 	$password = md5($password); // md5 is used to encrypt your password to make it more secure.
 
+	$passwordTwo = strip_tags($_POST["passwordTwo"]);
+
 	$email = $_POST['email'];
 	$email = strip_tags($email);
 
@@ -77,7 +79,29 @@
 		';
 
 	}
-	else
+	// server side handling or form
+	else if($username==""||$password==""||$email==""||$firstName==""||$lastName==""||$address1==""||$city==""||$state==""||$zipcode==""||$appKey==""){
+		$register=0;
+  		$success = false;
+  		echo '
+		<br>
+		<div class="alert">
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>
+		  <strong>All fields are required!</strong> please try again or contact andrew@experiencepush.com
+		</div>
+		';
+	}
+	else if($password!=$passwordTwo){
+		$register=0;
+  		$success = false;
+  		echo '
+		<br>
+		<div class="alert">
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>
+		  <strong>Passwords do not match!</strong> please try again or contact andrew@experiencepush.com
+		</div>
+		';
+	}else
 	{
 		// if username doesn't exist insert new records to push_interactive database for CSP management
 		$success = mysql_query("INSERT INTO client(client_id, client_name, password, email, first_name, last_name, address1, address2, city, state, zipcode) VALUES (DEFAULT,'".$username."', '".$password."', '".$email."', '".$firstName."', '".$lastName."', '".$address1."', '".$address2."', '".$city."', '".$state."', '".$zipcode."')");
@@ -117,8 +141,8 @@
 //hiding form once the registration is successful
  if(!$success) {
  ?>
-<form action="register.php?register=1" method="post" name="myForm" onsubmit="return(validate());" >
-	<fieldset>
+<form action="register.php?register=1" method="POST" name="myForm" onSubmit="return false;">
+	
 		<legend>Registration Form</legend>
 		<label>Username *</label>
 		<br/>
@@ -169,70 +193,65 @@
 		</br>
 		<input name="pushKey" type="text" placeholder="Your Push App key">
 		</br>
-
+		<br/>
+    <input type="button" value="Submit" onclick='validate(this)'/>
+  
+</form>
 
   <!-- Ready made validation script, if you want any mandatory fields  (optional) -->
 
 <script type="text/javascript">
 
-function validate()
+function validate(f)
 {
+	
 	if(document.myForm.pushKey.value==""){
 		alert("Please provide your Push App Key!");
 		document.myFrom.pushKey.focus();
 		return false;
 	}
-   if( document.myForm.username.value == "" )
+   else if( document.myForm.username.value == "" )
    {
      alert( "Please provide your username!" );
      document.myForm.username.focus() ;
      return false;
    }
-	if( document.myForm.username.value == "")
-	{
-		alert( "Please provide your email address!");
-		document.myForm.email.focus();
-		return false;
-	}
 
-   if( document.myForm.password.value == "" )
-   {
-     alert( "Please provide your password!" );
-     document.myForm.password.focus() ;
-     return false;
-   }
-
-   if( document.myForm.full_name.value == "" )
+   else if( document.myForm.full_name.value == "" )
    {
      alert( "Please provide your full name!" );
      document.myForm.full_name.focus() ;
      return false;
    }
-
-   if( document.myForm.passwordTwo.value != document.myForm.password.value)
+	else if( document.myForm.password.value == "" )
+   {
+     alert( "Please provide your password!" );
+     document.myForm.password.focus() ;
+     return false;
+   }
+   else if( document.myForm.passwordTwo.value != document.myForm.password.value)
    {
      alert( "Please provide matching passwords!" );
      document.myForm.password.focus();
      return false;
    }
-   if (document.myForm.emailTwo.value != document.myForm.email.value)
+   else if (document.myForm.emailTwo.value != document.myForm.email.value)
    {
 	   alert( "Please provide matching email accounts!");
 	   document.myForm.email.focus();
 	   return false;
    }
-   if (document.myForm.address1.vaue == "")
+   else if (document.myForm.address1.vaue == "")
    {
 	   alert( "Please provide at least 1 address")
 	   document.myForm.address1.focus();
 	   return false;
+   }else{
+    	f.submit();
+        return true;
    }
-   return( true );
 }
 </script>
-	<br/>
-    <button type="submit" class="btn">Signup</button>
-  </fieldset>
-</form>
+
 <?php } ?>
 <?php include ('footer.php'); ?>
