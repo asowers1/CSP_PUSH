@@ -267,7 +267,7 @@ class RestAPI {
 
 			sendResponse(200, "1");
 			return true;
-		}	
+		}
 		sendResponse(400,"0");
 		return false;
 	}
@@ -280,26 +280,27 @@ class RestAPI {
 		if(isset($_POST["PUSH_ID"])&&isset($_POST["uuid"])&&isset($_POST["favorite_id"])){
 		    if(!$this->checkPushID($_POST["PUSH_ID"])){
 				sendResponse(400,"-1");
-				return false;   
+				return false;
 		    }
 		    $user_user_id = stripslashes(strip_tags($_POST["uuid"]));
 		    $favorite_id  = stripslashes(strip_tags($_POST["favorite_id"]));
-			$stmt = $this->db->prepare("DELETE FROM user_favorite WHERE favorite_id = ?");
-			$stmt->bind_param("s", $favorite_id);
+		    $stmt = $this->db->prepare("DELETE FROM user_favorite WHERE favorite_id = ?");
+		    $stmt->bind_param("s", $favorite_id);
 		    $stmt->execute();
-			$stmt->store_result();
-		    $rows = $stmt->affected_rows;
-		    if($rows<=0){
-			    sendResponse(400, '-1');
-			    return false;
-		    }
+		    // to do: fix remove check
+			//$stmt->store_result();
+                    //$rows = $stmt->num_rows;
+		    //if($rows<=0){
+		//	    sendResponse(400, "-1");
+		//	    return false;
+		    //}
 			sendResponse(200, "1");
 			return true;
-		}	
+		}
 		sendResponse(400,"0");
-		return false;		
+		return false;
 	}
-	
+
 	/*
 	*	Adds new anonymous user to the user database
 	*
@@ -440,12 +441,14 @@ class RestAPI {
 		    $stmt = $this->db->prepare("INSERT INTO action (campaign_id,action_type,clicked,user_user_id) VALUES (?,?,?,(SELECT user_id FROM user WHERE uuid=?))");
 		    $stmt->bind_param("ssis",$campaign_id,$action_type,$clicked,$uuid);
 		    $stmt->execute();
-		    $stmt->store_result();
-		    //$rows = $stmt->num_rows;
-		    //if($rows<=0){
-			//    sendResponse(400, '-1');
-			//    return false;
-		    //}
+
+		    if(isset($_POST["sendToken"])){
+		    	if($_POST["sendToken"]=="yes"){
+		    		$var =  array("return"=>1,"action_id" => $stmt->insert_id);
+		    		sendResponse(200,json_encode($var));
+		    		return true;
+		    	}
+		    }
 
 			sendResponse(200, '1');
 			return true;
@@ -454,7 +457,25 @@ class RestAPI {
 	    return false;	
 	}
 
+	function updateTriggeredBeaconAction(){
+		if(isset($_POST["PUSH_ID"])&&isset($_POST["action_id"])&&isset($_POST["clicked"])){
+			if(!$this->checkPushID($_POST["PUSH_ID"])){
+				sendResponse(400,'-1');
+				return false;
+			}
+			$action_id = stripslashes(strip_tags($_POST["action_id"]));
+			$clicked   = stripslashes(strip_tags($_POST["clicked"]));
 
+			$stmt = $this->db->prepare("UPDATE action SET clicked = ? WHERE action_id = ?");
+			$stmt->bind_param("ii",$clicked,$action_id);
+			$stmt->execute();
+
+			sendResponse(200,"1");
+			return true;
+		}
+		sendResponse(400,'0');
+		return false;
+	}
     // end of RestAPI class
 }
  

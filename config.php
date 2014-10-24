@@ -220,7 +220,7 @@ function getCampaignItem($item_name){
 	$item_name = cleanVariable($item_name);
 	$result = mysql_query("SELECT campaign_name from campaign WHERE item_name = '$item_name'");
 	$campaign_name = mysql_fetch_row($result)[0];
-	$result = mysql_query("SELECT identifier FROM beacon WHERE (SELECT beacon_beacon_id FROM campaign_has_beacon WHERE campaign_campaign_id = (SELECT campaign_id FROM campaign WHERE campaign_name = '$campaign_name'))");
+	$result = mysql_query("SELECT identifier FROM beacon WHERE beacon_id = (SELECT beacon_beacon_id FROM campaign_has_beacon WHERE campaign_campaign_id = (SELECT campaign_id FROM campaign WHERE campaign_name = '$campaign_name'))");
 	$identifier = mysql_fetch_row($result)[0];
 	return array($campaign_name,$identifier);
 }

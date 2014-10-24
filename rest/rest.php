@@ -49,10 +49,10 @@ function getStatusCodeMessage($status)
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported'
     );
- 
+
     return (isset($codes[$status])) ? $codes[$status] : '';
 }
- 
+
 // Helper method to send a HTTP response code/message
 function sendResponse($status = 200, $body = '', $content_type = 'text/html')
 {
@@ -61,7 +61,5 @@ function sendResponse($status = 200, $body = '', $content_type = 'text/html')
     header('Content-type: ' . $content_type);
     echo $body;
 }
-
-
 
 ?>
