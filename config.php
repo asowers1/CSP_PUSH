@@ -276,12 +276,54 @@ function getUserFavoritesWithTrimmedDates(){
 }
 
 /*
+*
+*
+*
+*/
+function getBeaconTriggersWithTrimmedDates(){
+	$result = mysql_query('SELECT action_id, clicked, date(triggered) FROM action');
+	$new_arary = array();
+	$i=0;
+	while( $row = mysql_fetch_assoc( $result)){
+		$new_array[$i] = $row;
+		$i++;
+	}
+	return $new_array;
+}
+
+/*
 *	arrayCountOfFavoritesByDay
 *
 *	grabs all favorites with trimmed date, counts by date, returns array of favorites by day 
 */
 function arrayCountOfFavoritesByDay(){
 	$userFavorites = getUserFavoritesWithTrimmedDates();
+	$favoritesCount = count($userFavorites);
+	if($favoritesCount>0){
+		$result = array(array("date"=>$userFavorites[0]["date(triggered)"],"count"=>1));
+		for($i=1;$i<$favoritesCount;$i++){
+			$d1 = new DateTime($userFavorites[$i-1]["date(triggered)"]);
+	        $d2 = new DateTime($userFavorites[$i]["date(triggered)"]);
+	        $diff=$d1->diff($d2);
+	        if($diff->format('%d')==0){
+	        	$result[count($result)-1]["count"]++;
+	        }else{
+	          	array_push($result,array("date"=>$userFavorites[$i]["date(triggered)"],"count"=>1));
+			}
+		}
+		return $result;
+	}else{
+		return array();
+	}
+}
+
+/*
+*
+*
+*
+*/
+function arrayCountOfTriggersByDay(){
+	$userFavorites = getBeaconTriggersWithTrimmedDates();
 	$favoritesCount = count($userFavorites);
 	if($favoritesCount>0){
 		$result = array(array("date"=>$userFavorites[0]["date(triggered)"],"count"=>1));
