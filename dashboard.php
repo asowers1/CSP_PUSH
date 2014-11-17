@@ -11,10 +11,6 @@ $username = $_SESSION["username"];
 
 ?>
 <?php include ('header.php'); ?>
-<?php
-$document_get = mysql_query("SELECT * FROM users WHERE username='$username'");
-$match_value = mysql_fetch_array($document_get);
-?>
 
 <script>
 $(function(){

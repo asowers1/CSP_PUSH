@@ -12,7 +12,7 @@ $password = stripslashes($password);
 $username = mysql_real_escape_string($username);
 $password = mysql_real_escape_string($password);
 
-$sql="SELECT client_name FROM client WHERE client_name='$username' or email='$username' and password='$password'";
+$sql="SELECT client_name FROM client WHERE client_name='$username' and password='$password'";
 $result1=mysql_query($sql);
 $user = mysql_fetch_row($result1);
 $count=mysql_num_rows($result1);
