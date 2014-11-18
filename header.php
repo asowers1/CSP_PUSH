@@ -11,15 +11,13 @@ Author: Andrew Sowers
 
   <head>
     <meta charset="utf-8">
-    <title>Experience: Push Interactive, iBeacon Managment Portal</title>
+    <title>Experience: Push Interactive, iBeacon Management Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <!--<link href="../css/stylish-portfolio.css" rel="stylesheet">-->
-    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="http://experiencepush.com/csp_portal/bootstrap/css/bootstrap.css" rel="stylesheet">
     <script src="http://code.jquery.com/jquery.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
     <style type="text/css">
 	/* Custom styles for this project  */
       body {
