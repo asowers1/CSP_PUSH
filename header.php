@@ -16,7 +16,7 @@ Author: Andrew Sowers
     <meta name="description" content="">
     <meta name="author" content="">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="../css/stylish-portfolio.css" rel="stylesheet">
+    <!--<link href="../css/stylish-portfolio.css" rel="stylesheet">-->
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>

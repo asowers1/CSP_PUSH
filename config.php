@@ -442,6 +442,7 @@ function arrayTopFavoritesAllTime($limit,$listings){
 *
 *	encode/decode alphanumaric ident based on ascii values
 *
+*	Experimental - not core business logic
 */
 class alphanumaricAsciiConverter {
 

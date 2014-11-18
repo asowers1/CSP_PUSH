@@ -1,5 +1,4 @@
 <?php 
-//include ('../header.php'); 
 /*
 Managment_portal header.php
 Push Interactive LLC
@@ -12,7 +11,7 @@ Author: Andrew Sowers
 //--- Authenticate code begins here ---
 
 include ('../config.php');
-include ('linkedList.php');
+
 session_start();
 //checks if the login session is true
 if($_SESSION["username"]==NULL){
@@ -51,7 +50,7 @@ $IDDirectory = mysql_result($result,0);
     <meta name="description" content="">
     <meta name="author" content="">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="../css/stylish-portfolio.css" rel="stylesheet">
+    <!--<link href="../css/stylish-portfolio.css" rel="stylesheet">-->
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
