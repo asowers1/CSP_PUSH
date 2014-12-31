@@ -1,4 +1,66 @@
 <?php include ('header.php'); ?>
+
+
+<script type="text/javascript">
+
+function validate(f)
+{
+	
+	if(document.myForm.pushKey.value==""){
+		alert("Please provide your Push App Key!");
+		document.myFrom.pushKey.focus();
+		return false;
+	}
+   else if( document.myForm.username.value == "" )
+   {
+     alert( "Please provide your username!" );
+     document.myForm.username.focus() ;
+     return false;
+   }
+
+   else if( document.myForm.firstName.value == "" )
+   {
+     alert( "Please provide your first name!" );
+     document.myForm.full_name.focus() ;
+     return false;
+   }
+   else if( document.myForm.lastName.value == "" )
+   {
+     alert( "Please provide your last name!" );
+     document.myForm.full_name.focus() ;
+     return false;
+   }
+	else if( document.myForm.password.value == "" )
+   {
+     alert( "Please provide your password!" );
+     document.myForm.password.focus() ;
+     return false;
+   }
+   else if( document.myForm.passwordTwo.value != document.myForm.password.value)
+   {
+     alert( "Please provide matching passwords!" );
+     document.myForm.password.focus();
+     return false;
+   }
+   else if (document.myForm.emailTwo.value != document.myForm.email.value)
+   {
+	   alert( "Please provide matching email accounts!");
+	   document.myForm.email.focus();
+	   return false;
+   }
+   else if (document.myForm.address1.vaue == "")
+   {
+	   alert( "Please provide at least 1 address")
+	   document.myForm.address1.focus();
+	   return false;
+   }else{
+    	document.myForm.submit();
+        return true;
+   }
+}
+</script>
+
+
 <?php
 
 	$register = $_GET['register'];
@@ -17,6 +79,7 @@
 	$password = md5($password); // md5 is used to encrypt your password to make it more secure.
 
 	$passwordTwo = strip_tags($_POST["passwordTwo"]);
+	$passwordTwo = strip_tags(md5($passwordTwo));
 
 	$email = $_POST['email'];
 	$email = strip_tags($email);
@@ -85,7 +148,7 @@
   		$success = false;
   		echo '
 		<br>
-		<div class="alert">
+		<div class="alert alert-danger">
 		  <button type="button" class="close" data-dismiss="alert">&times;</button>
 		  <strong>All fields are required!</strong> please try again or contact andrew@experiencepush.com
 		</div>
@@ -96,7 +159,7 @@
   		$success = false;
   		echo '
 		<br>
-		<div class="alert">
+		<div class="alert alert-danger">
 		  <button type="button" class="close" data-dismiss="alert">&times;</button>
 		  <strong>Passwords do not match!</strong> please try again or contact andrew@experiencepush.com
 		</div>
@@ -200,58 +263,6 @@
 
   <!-- Ready made validation script, if you want any mandatory fields  (optional) -->
 
-<script type="text/javascript">
-
-function validate(f)
-{
-	
-	if(document.myForm.pushKey.value==""){
-		alert("Please provide your Push App Key!");
-		document.myFrom.pushKey.focus();
-		return false;
-	}
-   else if( document.myForm.username.value == "" )
-   {
-     alert( "Please provide your username!" );
-     document.myForm.username.focus() ;
-     return false;
-   }
-
-   else if( document.myForm.full_name.value == "" )
-   {
-     alert( "Please provide your full name!" );
-     document.myForm.full_name.focus() ;
-     return false;
-   }
-	else if( document.myForm.password.value == "" )
-   {
-     alert( "Please provide your password!" );
-     document.myForm.password.focus() ;
-     return false;
-   }
-   else if( document.myForm.passwordTwo.value != document.myForm.password.value)
-   {
-     alert( "Please provide matching passwords!" );
-     document.myForm.password.focus();
-     return false;
-   }
-   else if (document.myForm.emailTwo.value != document.myForm.email.value)
-   {
-	   alert( "Please provide matching email accounts!");
-	   document.myForm.email.focus();
-	   return false;
-   }
-   else if (document.myForm.address1.vaue == "")
-   {
-	   alert( "Please provide at least 1 address")
-	   document.myForm.address1.focus();
-	   return false;
-   }else{
-    	f.submit();
-        return true;
-   }
-}
-</script>
 
 <?php } ?>
 <?php include ('footer.php'); ?>
